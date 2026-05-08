@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<!--
+================================================================================
+REGISTRO DE ACTUACIONES DE PROMOCIÓN DE LA SALUD (RAPS_DGRAMET) v4.0
+Distrito Sanitario Granada-Metropolitano
+================================================================================
+
+MIT License
+
+Copyright (c) 2025 BR Hermoso
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTA SOBRE LOS DATOS:
+
+Los datos de actuaciones, profesionales y unidades asistenciales procesados
+por este software son propiedad del Distrito Sanitario Granada-Metropolitano
+del Servicio Andaluz de Salud.
+
+El código del software está licenciado bajo MIT, pero los datos utilizados
+están sujetos a las políticas de protección de datos y propiedad del distrito
+sanitario correspondiente.
+
+================================================================================
+Características principales:
+- Análisis de datos de actividades de promoción de la salud
+- Visualización interactiva con gráficos y tablas
+- Filtrado avanzado por múltiples criterios
+- Exportación a Excel y PDF
+- Análisis por niveles: Global, Unidad, Profesional
+- Múltiples mejoras avanzadas: alertas, comparativas, correlaciones, etc.
+
+Versión: 4.0
+Última actualización: Octubre 2025
+================================================================================
+-->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Registro de actuaciones de promoción de la salud - Análisis por Distrito, Unidad y Profesional">
+    <meta name="author" content="Distrito Sanitario Granada-Metropolitano">
+    <title>Registro de actuaciones de promoción de la salud | DSGM v4.0 🚀</title>
+
+    <!-- LIBRERÍAS EXTERNAS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- NUEVA: jsPDF para exportar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- ESTILOS CSS -->
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/componentes.css">
+    <link rel="stylesheet" href="styles/paneles.css">
+</head>
+<body>
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- MEJORA 8: MODO PRESENTACIÓN -->
+    <div id="modo-presentacion" class="modo-presentacion">
+        <div class="presentacion-slide active" id="slide-1">
+            <div class="presentacion-titulo">📊 Registro de Actuaciones de Promoción de la Salud</div>
+            <div class="presentacion-contenido">
+                <div class="presentacion-kpis" id="presentacion-kpis-slide1"></div>
+            </div>
+        </div>
+
+        <div class="presentacion-slide" id="slide-2">
+            <div class="presentacion-titulo">📈 Distribución por Tipo de Actividad</div>
+            <div class="presentacion-contenido" style="height: 600px;">
+                <canvas id="presentacion-grafico-tipos"></canvas>
+            </div>
+        </div>
+
+        <div class="presentacion-slide" id="slide-3">
+            <div class="presentacion-titulo">📚 Distribución por Temática</div>
+            <div class="presentacion-contenido" style="height: 600px;">
+                <canvas id="presentacion-grafico-tematicas"></canvas>
+            </div>
+        </div>
+
+        <div class="presentacion-slide" id="slide-4">
+            <div class="presentacion-titulo">👥 Participación por Sexo</div>
+            <div class="presentacion-contenido">
+                <div class="presentacion-kpis" id="presentacion-kpis-slide4"></div>
+            </div>
+        </div>
+
+        <div class="presentacion-controles">
+            <button class="presentacion-btn" id="btn-prev-slide">◀ Anterior</button>
+            <button class="presentacion-btn" id="btn-play-pause">▶ Auto</button>
+            <button class="presentacion-btn" id="btn-next-slide">Siguiente ▶</button>
+            <button class="presentacion-btn" id="btn-salir-presentacion">✕ Salir</button>
+        </div>
+
+        <div class="presentacion-indicador" id="presentacion-indicador">1 / 4</div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="separador-vertical"></div>
+                <div class="header-branding">
+                    <div class="app-title">RAPS · DGRAMET</div>
+                    <div class="app-subtitle">Registro de Actuaciones de Promoción de la Salud · v4.0</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-actions">
+                    <input type="file" id="file-input" accept=".csv" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('file-input').click();">
+                        📁 Cargar CSV
+                    </button>
+                    <button class="btn btn-secondary" id="btn-limpiar-datos">
+                        🗑️ Limpiar
+                    </button>
+                    <button class="btn btn-secondary" id="btn-exportar-csv">
+                        💾 CSV
+                    </button>
+                    <button class="btn btn-success" id="btn-exportar-excel">
+                        📊 Excel
+                    </button>
+                    <button class="btn btn-secondary" id="btn-modo-presentacion">
+                        📽️ Presentación
+                    </button>
+                    <button class="btn btn-secondary" onclick="accionRapidaPDF();">
+                        📄 PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-container">
+
+        <!-- SISTEMA DE ALERTAS -->
+        <div class="alertas-panel" id="alertas-panel" style="display: none;">
+            <h2>⚠️ Alertas del Sistema</h2>
+            <div id="alertas-container"></div>
+        </div>
+
+        <!-- COMPARATIVAS TEMPORALES -->
+        <div class="comparativas-panel" id="comparativas-panel" style="display: none;">
+            <h2>📈 Comparativas Temporales</h2>
+            <div class="periodo-selector">
+                <div class="periodo-grupo">
+                    <label>Período actual:</label>
+                    <select id="periodo-actual">
+                        <option value="mes-actual">Mes actual</option>
+                        <option value="trimestre-actual" selected>Trimestre actual</option>
+                        <option value="año-actual">Año actual</option>
+                    </select>
+                </div>
+                <div class="periodo-grupo">
+                    <label>Comparar con:</label>
+                    <select id="periodo-comparar">
+                        <option value="anterior" selected>Período anterior</option>
+                        <option value="año-anterior">Mismo período año anterior</option>
+                    </select>
+                </div>
+                <div class="periodo-grupo">
+                    <button class="btn btn-primary" id="btn-actualizar-comparativa">Actualizar comparativa</button>
+                </div>
+            </div>
+            <div class="comparativa-cards" id="comparativa-cards"></div>
+        </div>
+
+        <!-- DASHBOARD PROFESIONAL INDIVIDUAL -->
+        <div class="dashboard-profesional" id="dashboard-profesional" style="display: none;">
+            <h2>👤 Mi Dashboard Personal</h2>
+            <p id="profesional-nombre"></p>
+            <div class="profesional-info" id="profesional-info"></div>
+
+            <!-- Botón para generar informe exhaustivo -->
+            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #1976d2, #2196f3); border-radius: 8px; text-align: center;">
+                <button onclick="generarInformeProfesionalExhaustivo()" style="background: white; color: #1976d2; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                    📄 GENERAR MI INFORME PROFESIONAL COMPLETO
+                </button>
+                <p style="color: white; margin: 10px 0 0 0; font-size: 13px;">
+                    Documento exhaustivo con todas tus actividades y evidencias para justificar objetivos
+                </p>
+            </div>
+        </div>
+
+        <!-- ANÁLISIS DE BRECHAS -->
+        <div class="brechas-panel" id="brechas-panel" style="display: none;">
+            <h2>🎯 Análisis de Brechas y Oportunidades</h2>
+            <div class="brechas-grid" id="brechas-grid"></div>
+        </div>
+
+        <!-- MEJORA 6: FILTROS GUARDADOS / PERFILES -->
+        <div class="perfiles-panel" id="perfiles-panel" style="display: none;">
+            <h2>⭐ Mis Perfiles Guardados</h2>
+            <div class="perfiles-acciones">
+                <input type="text" id="perfil-nombre-input" class="perfil-input" placeholder="Nombre del perfil (ej: Mi unidad - Último trimestre)">
+                <button class="btn btn-primary" id="btn-guardar-perfil">💾 Guardar filtros actuales</button>
+            </div>
+            <div class="perfiles-lista" id="perfiles-lista"></div>
+        </div>
+
+        <!-- MEJORA 7: MÉTRICAS DE EFICIENCIA -->
+        <div class="eficiencia-panel" id="eficiencia-panel" style="display: none;">
+            <h2>⚡ Métricas de Eficiencia</h2>
+            <div class="eficiencia-grid" id="eficiencia-grid"></div>
+        </div>
+
+        <!-- MEJORA 9: ANÁLISIS PREDICTIVO -->
+        <div class="predictivo-panel" id="predictivo-panel" style="display: none;">
+            <h2>🔮 Proyecciones y Tendencias</h2>
+            <div class="predictivo-cards" id="predictivo-cards"></div>
+            <div class="predictivo-grafico">
+                <canvas id="grafico-predictivo"></canvas>
+            </div>
+        </div>
+
+        <!-- ======================================== -->
+        <!-- 🆕 NUEVOS PANELES v4.0 (MEJORAS 11-15) -->
+        <!-- ======================================== -->
+
+        <!-- 🆕 MEJORA 11: ANÁLISIS DE CORRELACIONES -->
+        <div class="correlaciones-panel" id="correlaciones-panel" style="display: none;">
+            <h2>🔗 Análisis de Correlaciones</h2>
+            <p>Análisis de relaciones entre diferentes métricas del sistema</p>
+            <div class="matriz-correlacion" id="correlaciones-grid"></div>
+        </div>
+
+        <!-- 🆕 MEJORA 12: BENCHMARK Y PERCENTILES -->
+        <div class="benchmark-panel" id="benchmark-panel" style="display: none;">
+            <h2>📏 Benchmark y Clasificación por Percentiles</h2>
+            <p>Clasificación de unidades y profesionales según su rendimiento comparativo</p>
+            <div class="percentiles-grid" id="percentiles-grid"></div>
+        </div>
+
+        <!-- 🆕 MEJORA 13: EXPORTACIÓN PDF -->
+        <div class="pdf-panel" id="pdf-panel" style="display: none;">
+            <h2>📄 Generador de Informes PDF</h2>
+            <p>Exporta informes profesionales en formato PDF con gráficos y análisis</p>
+            <div class="pdf-opciones">
+                <div class="pdf-opcion" onclick="generarPDFEjecutivo()">
+                    <div class="pdf-opcion-icono">📊</div>
+                    <div class="pdf-opcion-titulo">Resumen Ejecutivo</div>
+                    <div class="pdf-opcion-desc">KPIs principales y métricas clave</div>
+                </div>
+                <div class="pdf-opcion" onclick="generarPDFCompleto()">
+                    <div class="pdf-opcion-icono">📈</div>
+                    <div class="pdf-opcion-titulo">Informe Completo</div>
+                    <div class="pdf-opcion-desc">Análisis detallado con todos los gráficos</div>
+                </div>
+                <div class="pdf-opcion" onclick="generarPDFComparativo()">
+                    <div class="pdf-opcion-icono">⚖️</div>
+                    <div class="pdf-opcion-titulo">Análisis Comparativo</div>
+                    <div class="pdf-opcion-desc">Comparación entre distritos y unidades</div>
+                </div>
+                <div class="pdf-opcion" onclick="generarPDFPersonalizado()">
+                    <div class="pdf-opcion-icono">⚙️</div>
+                    <div class="pdf-opcion-titulo">Personalizado</div>
+                    <div class="pdf-opcion-desc">Selecciona los elementos a incluir</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🆕 MEJORA 14: MODO COMPARACIÓN -->
+        <div class="comparacion-panel" id="comparacion-panel" style="display: none;">
+            <h2>⚖️ Modo Comparación Directa</h2>
+            <p>Compara dos entidades (unidades o profesionales) lado a lado</p>
+            <div class="comparacion-selectores">
+                <div class="comparacion-selector">
+                    <label>Entidad 1:</label>
+                    <select id="comparacion-entidad1" onchange="actualizarComparacion()">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                </div>
+                <div class="comparacion-vs">VS</div>
+                <div class="comparacion-selector">
+                    <label>Entidad 2:</label>
+                    <select id="comparacion-entidad2" onchange="actualizarComparacion()">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="comparacion-resultados" id="comparacion-resultados"></div>
+        </div>
+
+        <!-- 🆕 MEJORA 15: BÚSQUEDA AVANZADA -->
+        <div class="busqueda-avanzada-panel" id="busqueda-panel" style="display: none;">
+            <h2>🔎 Búsqueda Avanzada en Datos</h2>
+            <p>Aplica múltiples criterios de búsqueda simultáneamente</p>
+            <div class="busqueda-avanzada-controles">
+                <div class="busqueda-campo">
+                    <label>Profesional:</label>
+                    <input type="text" id="busqueda-profesional" placeholder="Nombre del profesional...">
+                </div>
+                <div class="busqueda-campo">
+                    <label>Actividad:</label>
+                    <input type="text" id="busqueda-actividad" placeholder="Nombre de actividad...">
+                </div>
+                <div class="busqueda-campo">
+                    <label>Temática:</label>
+                    <select id="busqueda-tematica">
+                        <option value="">-- Todas --</option>
+                    </select>
+                </div>
+                <div class="busqueda-campo">
+                    <label>Tipo:</label>
+                    <select id="busqueda-tipo">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+                <div class="busqueda-campo">
+                    <label>Participantes mínimos:</label>
+                    <input type="number" id="busqueda-min-participantes" placeholder="0">
+                </div>
+                <div class="busqueda-campo">
+                    <label>Zona desfavorecida:</label>
+                    <select id="busqueda-zona">
+                        <option value="">-- Todas --</option>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn btn-primary" onclick="aplicarBusquedaAvanzada()">🔍 Buscar</button>
+                <button class="btn btn-secondary" onclick="limpiarBusquedaAvanzada()">🔄 Limpiar</button>
+            </div>
+            <div class="busqueda-resultados-info" id="busqueda-info" style="display: none;">
+                <span class="busqueda-resultados-contador" id="busqueda-contador"></span>
+                <button class="busqueda-limpiar" onclick="limpiarBusquedaAvanzada()">✕ Cerrar búsqueda</button>
+            </div>
+        </div>
+
+        <!-- PANEL DE NIVEL DE ANÁLISIS -->
+        <div class="nivel-panel">
+            <h2>🎯 Seleccionar Nivel de Análisis</h2>
+            <div class="nivel-selector">
+                <div class="nivel-grupo">
+                    <label>Nivel de agregación:</label>
+                    <select id="nivel-agregacion">
+                        <option value="global">🌍 Distrito Sanitario Granada-Metropolitano (Total)</option>
+                        <option value="distrito-granada">📍 Distrito Granada</option>
+                        <option value="distrito-metro">📍 Distrito Metropolitano de Granada</option>
+                        <option value="unidad">🏥 Por Unidad Asistencial</option>
+                        <option value="profesional">👤 Por Profesional</option>
+                    </select>
+                </div>
+
+                <div class="nivel-grupo" id="grupo-unidad" style="display: none;">
+                    <label>Seleccionar Unidad:</label>
+                    <select id="select-unidad">
+                        <option value="">-- Todas las unidades --</option>
+                    </select>
+                </div>
+
+                <div class="nivel-grupo" id="grupo-profesional" style="display: none;">
+                    <label>Seleccionar Profesional:</label>
+                    <select id="select-profesional">
+                        <option value="">-- Todos los profesionales --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- NIVEL ACTUAL -->
+        <div class="nivel-actual" id="nivel-actual-info">
+            <h3>📌 Nivel de análisis actual:</h3>
+            <p class="info" id="nivel-actual-texto">Distrito Sanitario Granada-Metropolitano (Total)</p>
+        </div>
+
+        <!-- PANEL DE FILTROS -->
+        <div class="filtros-panel">
+            <h2>🔍 Filtros avanzados</h2>
+            <div class="filtros-grid">
+                <div class="filtro-grupo">
+                    <label>Fecha desde:</label>
+                    <input type="date" id="filtro-fecha-desde">
+                </div>
+                <div class="filtro-grupo">
+                    <label>Fecha hasta:</label>
+                    <input type="date" id="filtro-fecha-hasta">
+                </div>
+                <div class="filtro-grupo">
+                    <label>Tipo de actividad:</label>
+                    <select id="filtro-tipo-actividad">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Temática:</label>
+                    <select id="filtro-tematica">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label>Programa:</label>
+                    <select id="filtro-programa">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="btn-aplicar-filtros">Aplicar filtros</button>
+            <button class="btn btn-secondary" id="btn-limpiar-filtros">Limpiar filtros</button>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="kpis-grid" id="kpis-container">
+            <div class="kpi-card">
+                <div class="icono">📋</div>
+                <div class="valor" id="kpi-actividades">0</div>
+                <div class="etiqueta">Actividades</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icono">👥</div>
+                <div class="valor" id="kpi-participantes">0</div>
+                <div class="etiqueta">Participantes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icono">⏱️</div>
+                <div class="valor" id="kpi-horas">0</div>
+                <div class="etiqueta">Horas totales</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icono">🎯</div>
+                <div class="valor" id="kpi-sesiones">0</div>
+                <div class="etiqueta">Sesiones</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icono">♂️</div>
+                <div class="valor" id="kpi-hombres">0</div>
+                <div class="etiqueta">Hombres</div>
+                <div class="subtexto" id="kpi-hombres-pct">0%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="icono">♀️</div>
+                <div class="valor" id="kpi-mujeres">0</div>
+                <div class="etiqueta">Mujeres</div>
+                <div class="subtexto" id="kpi-mujeres-pct">0%</div>
+            </div>
+        </div>
+
+        <!-- RANKINGS (solo visible en ciertos niveles) -->
+        <div id="rankings-container" style="display: none;">
+            <div class="graficos-grid">
+                <div class="ranking-card">
+                    <h3 id="ranking-titulo-1">🏆 Top 10 Unidades por Actividades</h3>
+                    <div id="ranking-1"></div>
+                </div>
+                <div class="ranking-card">
+                    <h3 id="ranking-titulo-2">👥 Top 10 Profesionales por Participantes</h3>
+                    <div id="ranking-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICOS -->
+        <div class="graficos-grid">
+            <div class="grafico-card">
+                <button class="grafico-export-btn" data-chart="grafico-tipos">📥 Descargar PNG</button>
+                <h3>📊 Actividades por tipo</h3>
+                <div class="grafico-container">
+                    <canvas id="grafico-tipos"></canvas>
+                </div>
+            </div>
+            <div class="grafico-card">
+                <button class="grafico-export-btn" data-chart="grafico-tematicas">📥 Descargar PNG</button>
+                <h3>📚 Actividades por temática</h3>
+                <div class="grafico-container">
+                    <canvas id="grafico-tematicas"></canvas>
+                </div>
+            </div>
+            <div class="grafico-card">
+                <button class="grafico-export-btn" data-chart="grafico-programas">📥 Descargar PNG</button>
+                <h3>🎯 Distribución por programa</h3>
+                <div class="grafico-container">
+                    <canvas id="grafico-programas"></canvas>
+                </div>
+            </div>
+            <div class="grafico-card">
+                <button class="grafico-export-btn" data-chart="grafico-genero">📥 Descargar PNG</button>
+                <h3>👥 Participantes por sexo</h3>
+                <div class="grafico-container">
+                    <canvas id="grafico-genero"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="graficos-grid">
+            <div class="grafico-card">
+                <button class="grafico-export-btn" data-chart="grafico-distritos">📥 Descargar PNG</button>
+                <h3 id="titulo-grafico-comparativo">📊 Comparativa por Distrito</h3>
+                <div class="grafico-container">
+                    <canvas id="grafico-distritos"></canvas>
+                </div>
+            </div>
+            <div class="grafico-card">
+                <button class="grafico-export-btn" data-chart="grafico-mensual">📥 Descargar PNG</button>
+                <h3>📈 Evolución mensual</h3>
+                <div class="grafico-container">
+                    <canvas id="grafico-mensual"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE DATOS CON PESTAÑAS -->
+        <div class="tabla-container">
+            <div class="tabla-header">
+                <h3>📋 Detalle de actividades</h3>
+                <input type="text" id="busqueda-tabla" class="busqueda-input" placeholder="Buscar por actividad o profesional...">
+            </div>
+
+            <!-- Pestañas -->
+            <div class="tabs-container">
+                <div class="tab active" data-tab="granada">📍 Distrito Granada</div>
+                <div class="tab" data-tab="metro">📍 Distrito Metropolitano</div>
+                <div class="tab" data-tab="ambos">🌍 Distrito Granada-Metropolitano</div>
+            </div>
+
+            <!-- Contenido de las pestañas -->
+            <div class="tab-content active" id="tab-granada">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Unidad</th>
+                            <th>Profesional</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Actividad</th>
+                            <th>Participantes</th>
+                            <th>Horas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body-granada">
+                    </tbody>
+                </table>
+                <div class="paginacion-container">
+                    <div class="paginacion-info" id="paginacion-granada"></div>
+                    <div class="paginacion-botones">
+                        <button class="btn btn-secondary" id="btn-anterior-granada">← Anterior</button>
+                        <button class="btn btn-secondary" id="btn-siguiente-granada">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-metro">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Unidad</th>
+                            <th>Profesional</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Actividad</th>
+                            <th>Participantes</th>
+                            <th>Horas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body-metro">
+                    </tbody>
+                </table>
+                <div class="paginacion-container">
+                    <div class="paginacion-info" id="paginacion-metro"></div>
+                    <div class="paginacion-botones">
+                        <button class="btn btn-secondary" id="btn-anterior-metro">← Anterior</button>
+                        <button class="btn btn-secondary" id="btn-siguiente-metro">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-ambos">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Distrito</th>
+                            <th>Unidad</th>
+                            <th>Profesional</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Actividad</th>
+                            <th>Participantes</th>
+                            <th>Horas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body-ambos">
+                    </tbody>
+                </table>
+                <div class="paginacion-container">
+                    <div class="paginacion-info" id="paginacion-ambos"></div>
+                    <div class="paginacion-botones">
+                        <button class="btn btn-secondary" id="btn-anterior-ambos">← Anterior</button>
+                        <button class="btn btn-secondary" id="btn-siguiente-ambos">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER CON INFORMACIÓN DE LICENCIA -->
+    <footer style="background: linear-gradient(135deg, #37474f, #263238); color: white; padding: 30px; margin-top: 40px; text-align: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 20px; margin-bottom: 10px; font-weight: 600;">📊 RAPS_DGRAMET v4.0</h3>
+                <p style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">Registro de Actuaciones de Promoción de la Salud</p>
+                <p style="font-size: 13px; opacity: 0.85; margin-bottom: 5px;">Distrito Sanitario Granada-Metropolitano</p>
+                <p style="font-size: 12px; opacity: 0.8;">Última actualización: Octubre 2025</p>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <h4 style="font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">⚖️</span> Licencia MIT
+                </h4>
+                <p style="font-size: 13px; line-height: 1.8; opacity: 0.95; margin-bottom: 10px;">
+                    <strong>Software:</strong> Copyright © 2025 BR Hermoso
+                </p>
+                <p style="font-size: 12px; line-height: 1.7; opacity: 0.9; margin-bottom: 12px;">
+                    Este software se proporciona bajo la <strong>Licencia MIT</strong>. Se concede permiso gratuito a cualquier persona
+                    que obtenga una copia de este software para usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar
+                    y/o vender copias del software, sujeto a las condiciones de la licencia MIT completa.
+                </p>
+                <p style="font-size: 11px; line-height: 1.6; opacity: 0.85; margin-bottom: 12px; font-style: italic;">
+                    EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA.
+                </p>
+                <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; margin-top: 12px;">
+                    <p style="font-size: 11px; line-height: 1.6; opacity: 0.85;">
+                        <strong>NOTA SOBRE LOS DATOS:</strong> Los datos de actuaciones, profesionales y unidades asistenciales
+                        procesados por este software son propiedad del Distrito Sanitario Granada-Metropolitano del Servicio Andaluz
+                        de Salud. El código del software está licenciado bajo MIT, pero los datos utilizados están sujetos a las
+                        políticas de protección de datos y propiedad del distrito sanitario correspondiente.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <p style="font-size: 13px; opacity: 0.9; margin-bottom: 10px;">
+                    <strong>✨ Características principales:</strong>
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; font-size: 12px; opacity: 0.85;">
+                    <span>📊 Análisis avanzado de datos</span>
+                    <span>📈 Visualización interactiva</span>
+                    <span>🔍 Filtrado múltiple</span>
+                    <span>📁 Exportación Excel/PDF</span>
+                    <span>🎯 Análisis por niveles</span>
+                    <span>🔄 Comparativas y correlaciones</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 25px; font-size: 12px; opacity: 0.8;">
+                <p>Desarrollado con ❤️ para la promoción de la salud</p>
+                <p style="margin-top: 5px;">HTML5 + JavaScript + Chart.js + PapaParse + XLSX + jsPDF</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
