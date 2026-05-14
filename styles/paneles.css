@@ -1,0 +1,586 @@
+/* === MEJORA 2: COMPARATIVAS TEMPORALES === */
+.comparativas-panel {
+    background: var(--color-blanco);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.comparativas-panel h2 {
+    font-size: 20px;
+    color: var(--color-primario);
+    margin-bottom: 15px;
+}
+
+.periodo-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.periodo-grupo {
+    flex: 1;
+    min-width: 200px;
+}
+
+.periodo-grupo label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--color-gris);
+    font-size: 13px;
+}
+
+.periodo-grupo select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--color-gris-claro);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.comparativa-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.comparativa-card {
+    background: var(--color-fondo);
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid var(--color-primario);
+}
+
+.comparativa-label {
+    font-size: 12px;
+    color: var(--color-gris);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.comparativa-valores {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.valor-actual {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-primario);
+}
+
+.valor-anterior {
+    font-size: 16px;
+    color: var(--color-gris);
+}
+
+.comparativa-cambio {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cambio-positivo {
+    color: var(--color-exito);
+}
+
+.cambio-negativo {
+    color: var(--color-peligro);
+}
+
+.cambio-neutro {
+    color: var(--color-gris);
+}
+
+/* === MEJORA 3: SISTEMA DE ALERTAS === */
+.alertas-panel {
+    background: linear-gradient(135deg, var(--color-advertencia), #f57c00);
+    color: var(--color-blanco);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.alertas-panel h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alerta-item {
+    background-color: rgba(255,255,255,0.15);
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid var(--color-blanco);
+}
+
+.alerta-icono {
+    font-size: 24px;
+    min-width: 30px;
+}
+
+.alerta-texto {
+    flex: 1;
+    font-size: 14px;
+}
+
+.alerta-nivel {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.alerta-alta {
+    background-color: var(--color-peligro);
+}
+
+.alerta-media {
+    background-color: var(--color-advertencia);
+}
+
+.alerta-baja {
+    background-color: var(--color-exito);
+}
+
+/* === MEJORA 4: DASHBOARD PROFESIONAL === */
+.dashboard-profesional {
+    background: linear-gradient(135deg, var(--color-acento3), #7b1fa2);
+    color: var(--color-blanco);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.dashboard-profesional h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.profesional-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.profesional-metrica {
+    background-color: rgba(255,255,255,0.15);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.profesional-metrica-valor {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.profesional-metrica-label {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.profesional-metrica-comparativa {
+    font-size: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+/* === MEJORA 5: ANÁLISIS DE BRECHAS === */
+.brechas-panel {
+    background: var(--color-blanco);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.brechas-panel h2 {
+    font-size: 20px;
+    color: var(--color-primario);
+    margin-bottom: 20px;
+}
+
+.brechas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.brecha-card {
+    border: 2px solid var(--color-gris-claro);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.brecha-card h3 {
+    font-size: 16px;
+    color: var(--color-acento2);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brecha-lista {
+    list-style: none;
+}
+
+.brecha-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-gris-claro);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brecha-item:last-child {
+    border-bottom: none;
+}
+
+.brecha-nombre {
+    font-size: 14px;
+    color: var(--color-texto);
+}
+
+.brecha-valor {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-acento2);
+}
+
+/* === MEJORA 6: FILTROS GUARDADOS === */
+.perfiles-panel {
+    background: linear-gradient(135deg, #00897b, #00695c);
+    color: var(--color-blanco);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.perfiles-panel h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.perfiles-acciones {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.perfil-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 15px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: rgba(255,255,255,0.9);
+}
+
+.perfiles-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.perfil-item {
+    background-color: rgba(255,255,255,0.15);
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.perfil-item:hover {
+    background-color: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+}
+
+.perfil-nombre {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.perfil-eliminar {
+    background-color: var(--color-peligro);
+    color: var(--color-blanco);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.perfil-eliminar:hover {
+    background-color: #c62828;
+}
+
+/* === MEJORA 7: MÉTRICAS DE EFICIENCIA === */
+.eficiencia-panel {
+    background: var(--color-blanco);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.eficiencia-panel h2 {
+    font-size: 20px;
+    color: var(--color-primario);
+    margin-bottom: 20px;
+}
+
+.eficiencia-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.eficiencia-card {
+    background: linear-gradient(135deg, var(--color-fondo), var(--color-gris-claro));
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid var(--color-secundario);
+}
+
+.eficiencia-valor {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--color-secundario);
+    margin-bottom: 5px;
+}
+
+.eficiencia-label {
+    font-size: 13px;
+    color: var(--color-gris);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.eficiencia-descripcion {
+    font-size: 11px;
+    color: var(--color-gris);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-gris-claro);
+}
+
+/* === MEJORA 8: MODO PRESENTACIÓN === */
+.modo-presentacion {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+}
+
+.modo-presentacion.active {
+    display: block;
+}
+
+.presentacion-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.presentacion-slide.active {
+    opacity: 1;
+}
+
+.presentacion-titulo {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--color-blanco);
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.presentacion-contenido {
+    width: 100%;
+    max-width: 1200px;
+    background-color: rgba(255,255,255,0.05);
+    padding: 40px;
+    border-radius: 12px;
+}
+
+.presentacion-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.presentacion-kpi {
+    text-align: center;
+    padding: 30px;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 8px;
+}
+
+.presentacion-kpi-valor {
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--color-primario);
+    margin-bottom: 10px;
+}
+
+.presentacion-kpi-label {
+    font-size: 20px;
+    color: var(--color-blanco);
+    text-transform: uppercase;
+}
+
+.presentacion-controles {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    background-color: rgba(0,0,0,0.8);
+    padding: 15px 25px;
+    border-radius: 50px;
+}
+
+.presentacion-btn {
+    background-color: var(--color-blanco);
+    color: var(--color-texto);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.presentacion-btn:hover {
+    background-color: var(--color-primario);
+    color: var(--color-blanco);
+}
+
+.presentacion-indicador {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-blanco);
+    font-size: 14px;
+}
+
+/* === MEJORA 9: ANÁLISIS PREDICTIVO === */
+.predictivo-panel {
+    background: linear-gradient(135deg, #5e35b1, #4527a0);
+    color: var(--color-blanco);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    margin-bottom: 30px;
+}
+
+.predictivo-panel h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.predictivo-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.predictivo-card {
+    background-color: rgba(255,255,255,0.15);
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.predictivo-periodo {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.predictivo-valor {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.predictivo-label {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.predictivo-tendencia {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tendencia-positiva {
+    color: #4caf50;
+}
+
+.tendencia-negativa {
+    color: #f44336;
+}
+
+.tendencia-estable {
+    color: #ffc107;
+}
+
+.predictivo-grafico {
+    margin-top: 20px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 6px;
+}
+
