@@ -1,679 +1,1315 @@
 <!DOCTYPE html>
-<!--
-================================================================================
-REGISTRO DE ACTUACIONES DE PROMOCIÓN DE LA SALUD (RAPS_DGRAMET) v4.0
-Distrito Sanitario Granada-Metropolitano
-================================================================================
-
-MIT License
-
-Copyright (c) 2025 BR Hermoso
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
----
-
-NOTA SOBRE LOS DATOS:
-
-Los datos de actuaciones, profesionales y unidades asistenciales procesados
-por este software son propiedad del Distrito Sanitario Granada-Metropolitano
-del Servicio Andaluz de Salud.
-
-El código del software está licenciado bajo MIT, pero los datos utilizados
-están sujetos a las políticas de protección de datos y propiedad del distrito
-sanitario correspondiente.
-
-================================================================================
-Características principales:
-- Análisis de datos de actividades de promoción de la salud
-- Visualización interactiva con gráficos y tablas
-- Filtrado avanzado por múltiples criterios
-- Exportación a Excel y PDF
-- Análisis por niveles: Global, Unidad, Profesional
-- Múltiples mejoras avanzadas: alertas, comparativas, correlaciones, etc.
-
-Versión: 4.0
-Última actualización: Octubre 2025
-================================================================================
--->
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Registro de actuaciones de promoción de la salud - Análisis por Distrito, Unidad y Profesional">
-    <meta name="author" content="Distrito Sanitario Granada-Metropolitano">
-    <title>Registro de actuaciones de promoción de la salud | DSGM v4.0 🚀</title>
-
-    <!-- LIBRERÍAS EXTERNAS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- NUEVA: jsPDF para exportar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- ESTILOS CSS -->
-    <link rel="stylesheet" href="styles/base.css">
-    <link rel="stylesheet" href="styles/componentes.css">
-    <link rel="stylesheet" href="styles/paneles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAPS · DGRAMET v5.0</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* ── Variables ─────────────────────────────────────────────────────────── */
+:root {
+  --azul:    #0074c8; --turquesa:#00acd9; --lima:   #94d40b;
+  --ambar:   #ffb61b; --naranja: #ff6600; --rojo:   #dc143c;
+  --grad: linear-gradient(90deg,#0074c8 0%,#00acd9 20%,#94d40b 40%,#ffb61b 60%,#ff6600 80%,#dc143c 100%);
+  --grad-v: linear-gradient(180deg,#0074c8 0%,#00acd9 25%,#94d40b 50%,#ffb61b 75%,#dc143c 100%);
+  --fondo: #ffffff; --fondo2: #fafbfc; --fondo3: #f1f5f9;
+  --texto: #334155; --titulo: #1b365d; --sub: #64748b;
+  --borde: #e2e8f0; --sombra: 0 1px 3px rgba(15,23,42,.06);
+  --sombra-h: 0 8px 20px rgba(15,23,42,.09); --r: 10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#fff;color:var(--texto);font-size:14px;line-height:1.5}
+/* ── Loading ────────────────────────────────────────────────────────────── */
+#loading{display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.spin{width:40px;height:40px;border:3px solid var(--borde);border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ── Header ─────────────────────────────────────────────────────────────── */
+header{background:#fff;border-bottom:1px solid var(--borde);position:sticky;top:0;z-index:100}
+header::before{content:'';display:block;height:4px;background:var(--grad)}
+.hdr{max-width:1400px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px}
+.brand h1{font-size:1.1rem;font-weight:750;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:.75rem;color:var(--sub)}
+.hdr-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+/* ── Nav tabs ───────────────────────────────────────────────────────────── */
+nav{background:#fff;border-bottom:1px solid var(--borde);overflow-x:auto}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;padding:0 20px}
+.nav-tab{padding:10px 16px;font-size:.82rem;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.nav-tab:hover{color:var(--titulo)}
+.nav-tab.active{color:var(--azul);border-bottom-color:var(--azul)}
+/* ── Main ───────────────────────────────────────────────────────────────── */
+main{max-width:1400px;margin:0 auto;padding:20px}
+.panel{display:none}
+.panel.active{display:block}
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1px solid var(--borde);background:#fff;color:var(--texto);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn:hover{box-shadow:var(--sombra-h);transform:translateY(-1px)}
+.btn-p{color:var(--azul);border-color:rgba(0,116,200,.3);border-left:3px solid var(--azul)}
+.btn-s{color:var(--sub)}
+.btn-g{color:#4d7c0f;border-color:rgba(148,212,11,.4);border-left:3px solid var(--lima)}
+.btn-r{color:var(--rojo);border-color:rgba(220,20,60,.3);border-left:3px solid var(--rojo)}
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card{background:#fff;border:1px solid var(--borde);border-radius:var(--r);padding:18px;box-shadow:var(--sombra)}
+.card-title{font-size:.85rem;font-weight:700;color:var(--titulo);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+/* ── Grid helpers ───────────────────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.g2r{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+@media(max-width:900px){.g4,.g6{grid-template-columns:repeat(2,1fr)}.g2,.g3,.g2r{grid-template-columns:1fr}}
+/* ── KPI cards ──────────────────────────────────────────────────────────── */
+.kpi{background:#fff;border:1px solid var(--borde);border-radius:var(--r);padding:16px 18px;border-left:4px solid var(--azul);box-shadow:var(--sombra);display:flex;flex-direction:column;gap:4px}
+.kpi .ico{font-size:1.4rem}
+.kpi .val{font-size:1.6rem;font-weight:750;color:var(--titulo);line-height:1}
+.kpi .lbl{font-size:.75rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.kpi .sub{font-size:.8rem;color:var(--sub)}
+.kpi:nth-child(6n+1){border-left-color:var(--azul)}
+.kpi:nth-child(6n+2){border-left-color:var(--turquesa)}
+.kpi:nth-child(6n+3){border-left-color:var(--lima)}
+.kpi:nth-child(6n+4){border-left-color:var(--ambar)}
+.kpi:nth-child(6n+5){border-left-color:var(--naranja)}
+.kpi:nth-child(6n+6){border-left-color:var(--rojo)}
+/* ── Chart cards ────────────────────────────────────────────────────────── */
+.chart-card{background:#fff;border:1px solid var(--borde);border-radius:var(--r);padding:18px;box-shadow:var(--sombra);border-left:4px solid var(--azul)}
+.chart-card:nth-child(6n+1){border-left-color:var(--azul)}
+.chart-card:nth-child(6n+2){border-left-color:var(--turquesa)}
+.chart-card:nth-child(6n+3){border-left-color:var(--lima)}
+.chart-card:nth-child(6n+4){border-left-color:var(--ambar)}
+.chart-card:nth-child(6n+5){border-left-color:var(--naranja)}
+.chart-card:nth-child(6n+6){border-left-color:var(--rojo)}
+.chart-card h3{font-size:.82rem;font-weight:700;color:var(--titulo);margin-bottom:10px}
+.chart-wrap{position:relative;height:220px}
+/* ── Filtros ────────────────────────────────────────────────────────────── */
+.filtros-bar{background:#fff;border:1px solid var(--borde);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;border-top:3px solid transparent;border-image:var(--grad) 1;box-shadow:var(--sombra)}
+.filtros-bar h2{font-size:.82rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.filtros-grid{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px;min-width:140px}
+.fg label{font-size:.72rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.fg input,.fg select{padding:6px 10px;border:1px solid var(--borde);border-radius:6px;font-size:.8rem;color:var(--texto);background:#fff;outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--azul);box-shadow:0 0 0 2px rgba(0,116,200,.1)}
+/* ── Tabla ──────────────────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--borde)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead{background:var(--fondo3);position:sticky;top:0}
+th{padding:9px 12px;text-align:left;font-weight:700;color:var(--titulo);border-bottom:2px solid var(--borde);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--borde);color:var(--texto)}
+tbody tr:hover{background:var(--fondo2)}
+.pag{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.78rem;color:var(--sub)}
+.pag-info{flex:1}
+/* ── Ranking bars ───────────────────────────────────────────────────────── */
+.rank-item{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--fondo3)}
+.rank-item:last-child{border-bottom:none}
+.rank-pos{font-size:.75rem;font-weight:700;color:var(--sub);text-align:center}
+.rank-bar-wrap{display:flex;flex-direction:column;gap:3px}
+.rank-name{font-size:.78rem;color:var(--texto);font-weight:600}
+.rank-bar{height:6px;border-radius:3px;background:var(--fondo3);overflow:hidden}
+.rank-fill{height:100%;border-radius:3px;transition:width .4s}
+.rank-val{font-size:.78rem;font-weight:700;color:var(--titulo);white-space:nowrap}
+/* ── Badge ──────────────────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;border:1px solid transparent}
+.badge-a{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.badge-t{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+.badge-d{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+.badge-r{background:#fff1f2;color:#be123c;border-color:#fecdd3}
+/* ── Pantalla bienvenida ─────────────────────────────────────────────────── */
+#bienvenida{text-align:center;padding:60px 20px}
+#bienvenida .grad-title{font-size:2rem;font-weight:750;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+#bienvenida p{color:var(--sub);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
+.drop-zone{border:2px dashed var(--borde);border-radius:var(--r);padding:40px;max-width:480px;margin:0 auto;cursor:pointer;transition:all .2s}
+.drop-zone:hover{border-color:var(--azul);background:rgba(0,116,200,.03)}
+.drop-zone .ico{font-size:2.5rem;margin-bottom:10px}
+.drop-zone p{color:var(--sub);font-size:.9rem}
+/* ── Sección header ─────────────────────────────────────────────────────── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+.sec-title{font-size:1.05rem;font-weight:750;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+/* ── Progress gradient ──────────────────────────────────────────────────── */
+.prog-bar{height:8px;border-radius:4px;background:var(--fondo3);overflow:hidden;margin:6px 0}
+.prog-fill{height:100%;border-radius:4px;background:var(--grad);transition:width .4s}
+/* ── Alert items ────────────────────────────────────────────────────────── */
+.alerta{background:#fff;border:1px solid var(--borde);border-left:4px solid var(--ambar);border-radius:8px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.alerta.alta{border-left-color:var(--rojo);background:#fff8f8}
+.alerta.baja{border-left-color:var(--lima);background:#f9fef0}
+.alerta-ico{font-size:1.2rem;flex-shrink:0}
+.alerta-body strong{display:block;font-size:.82rem;color:var(--titulo);margin-bottom:2px}
+.alerta-body span{font-size:.78rem;color:var(--sub)}
+/* ── Stat inline ────────────────────────────────────────────────────────── */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--fondo3);font-size:.8rem}
+.stat-row:last-child{border:none}
+.stat-row .k{color:var(--sub)}
+.stat-row .v{font-weight:700;color:var(--titulo)}
+/* ── Donut center ───────────────────────────────────────────────────────── */
+.donut-wrap{position:relative;height:200px;display:flex;align-items:center;justify-content:center}
+/* ── Info pill ──────────────────────────────────────────────────────────── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;background:var(--fondo3);color:var(--sub);border:1px solid var(--borde)}
+/* ── Heatmap ────────────────────────────────────────────────────────────── */
+.heatmap{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.hm-cell{border-radius:3px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--sub);border:1px solid var(--borde);cursor:default;transition:opacity .15s}
+.hm-cell:hover{opacity:.8}
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+footer{margin-top:40px;background:#fff;border-top:1px solid var(--borde)}
+footer::before{content:'';display:block;height:5px;background:var(--grad)}
+.footer-inner{max-width:1400px;margin:0 auto;padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.footer-inner p{font-size:.75rem;color:var(--sub)}
+.footer-inner h4{font-size:.8rem;font-weight:750;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+/* ── Chip list ──────────────────────────────────────────────────────────── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:600;background:var(--fondo3);color:var(--titulo);border:1px solid var(--borde)}
+.chip:nth-child(6n+1){border-left:3px solid var(--azul)}
+.chip:nth-child(6n+2){border-left:3px solid var(--turquesa)}
+.chip:nth-child(6n+3){border-left:3px solid var(--lima)}
+.chip:nth-child(6n+4){border-left:3px solid var(--ambar)}
+.chip:nth-child(6n+5){border-left:3px solid var(--naranja)}
+.chip:nth-child(6n+6){border-left:3px solid var(--rojo)}
+/* ── Nivel selector ─────────────────────────────────────────────────────── */
+.nivel-bar{background:#fff;border:1px solid var(--borde);border-radius:var(--r);padding:12px 18px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.nivel-bar .fg{min-width:200px}
+/* ── Info banner ────────────────────────────────────────────────────────── */
+.info-banner{padding:8px 14px;border-radius:6px;background:rgba(0,116,200,.05);border:1px solid rgba(0,116,200,.15);color:var(--azul);font-size:.78rem;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+/* ── mb helpers ─────────────────────────────────────────────────────────── */
+.mb8{margin-bottom:8px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+</style>
 </head>
 <body>
-    <!-- LOADING OVERLAY -->
-    <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
+<div id="loading" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+  <div class="spin"></div><p style="color:var(--sub);font-size:.85rem">Procesando datos…</p>
+</div>
+
+<header>
+  <div class="hdr">
+    <div class="brand">
+      <h1>RAPS · DGRAMET v5.0</h1>
+      <p>Registro de Actuaciones de Promoción de la Salud · Distrito Sanitario Granada-Metropolitano</p>
     </div>
-
-    <!-- MEJORA 8: MODO PRESENTACIÓN -->
-    <div id="modo-presentacion" class="modo-presentacion">
-        <div class="presentacion-slide active" id="slide-1">
-            <div class="presentacion-titulo">📊 Registro de Actuaciones de Promoción de la Salud</div>
-            <div class="presentacion-contenido">
-                <div class="presentacion-kpis" id="presentacion-kpis-slide1"></div>
-            </div>
-        </div>
-
-        <div class="presentacion-slide" id="slide-2">
-            <div class="presentacion-titulo">📈 Distribución por Tipo de Actividad</div>
-            <div class="presentacion-contenido" style="height: 600px;">
-                <canvas id="presentacion-grafico-tipos"></canvas>
-            </div>
-        </div>
-
-        <div class="presentacion-slide" id="slide-3">
-            <div class="presentacion-titulo">📚 Distribución por Temática</div>
-            <div class="presentacion-contenido" style="height: 600px;">
-                <canvas id="presentacion-grafico-tematicas"></canvas>
-            </div>
-        </div>
-
-        <div class="presentacion-slide" id="slide-4">
-            <div class="presentacion-titulo">👥 Participación por Sexo</div>
-            <div class="presentacion-contenido">
-                <div class="presentacion-kpis" id="presentacion-kpis-slide4"></div>
-            </div>
-        </div>
-
-        <div class="presentacion-controles">
-            <button class="presentacion-btn" id="btn-prev-slide">◀ Anterior</button>
-            <button class="presentacion-btn" id="btn-play-pause">▶ Auto</button>
-            <button class="presentacion-btn" id="btn-next-slide">Siguiente ▶</button>
-            <button class="presentacion-btn" id="btn-salir-presentacion">✕ Salir</button>
-        </div>
-
-        <div class="presentacion-indicador" id="presentacion-indicador">1 / 4</div>
+    <div class="hdr-actions">
+      <input type="file" id="file-csv" accept=".csv" style="display:none">
+      <button class="btn btn-p" onclick="document.getElementById('file-csv').click()">📁 Cargar CSV</button>
+      <button class="btn btn-s" id="btn-limpiar">🗑️ Limpiar</button>
+      <button class="btn btn-s" id="btn-exp-csv">💾 CSV</button>
+      <button class="btn btn-g" id="btn-exp-xlsx">📊 Excel</button>
+      <button class="btn btn-s" id="btn-exp-pdf">📄 PDF</button>
     </div>
+  </div>
+</header>
 
-    <!-- HEADER -->
-    <header class="header">
-        <div class="header-content">
-            <div class="header-left">
-                <div class="separador-vertical"></div>
-                <div class="header-branding">
-                    <div class="app-title">RAPS · DGRAMET</div>
-                    <div class="app-subtitle">Registro de Actuaciones de Promoción de la Salud · v4.0</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="header-actions">
-                    <input type="file" id="file-input" accept=".csv" style="display: none;">
-                    <button class="btn btn-primary" onclick="document.getElementById('file-input').click();">
-                        📁 Cargar CSV
-                    </button>
-                    <button class="btn btn-secondary" id="btn-limpiar-datos">
-                        🗑️ Limpiar
-                    </button>
-                    <button class="btn btn-secondary" id="btn-exportar-csv">
-                        💾 CSV
-                    </button>
-                    <button class="btn btn-success" id="btn-exportar-excel">
-                        📊 Excel
-                    </button>
-                    <button class="btn btn-secondary" id="btn-modo-presentacion">
-                        📽️ Presentación
-                    </button>
-                    <button class="btn btn-secondary" onclick="accionRapidaPDF();">
-                        📄 PDF
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-tab active" data-tab="dashboard">📊 Dashboard</div>
+    <div class="nav-tab" data-tab="tabla">📋 Tabla</div>
+    <div class="nav-tab" data-tab="demografico">👥 Demográfico</div>
+    <div class="nav-tab" data-tab="territorial">🗺️ Territorial</div>
+    <div class="nav-tab" data-tab="profesional">👤 Profesional</div>
+    <div class="nav-tab" data-tab="temporal">📈 Temporal</div>
+    <div class="nav-tab" data-tab="programas">🎯 Programas</div>
+    <div class="nav-tab" data-tab="brechas">⚖️ Equidad</div>
+    <div class="nav-tab" data-tab="eficiencia">⚡ Eficiencia</div>
+    <div class="nav-tab" data-tab="alertas">🔔 Alertas</div>
+  </div>
+</nav>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="main-container">
+<main>
 
-        <!-- SISTEMA DE ALERTAS -->
-        <div class="alertas-panel" id="alertas-panel" style="display: none;">
-            <h2>⚠️ Alertas del Sistema</h2>
-            <div id="alertas-container"></div>
-        </div>
+<!-- ── BIENVENIDA ─────────────────────────────────────────────────── -->
+<div id="bienvenida">
+  <div class="grad-title">RAPS · DGRAMET</div>
+  <p>Carga un archivo CSV exportado desde REDCap para comenzar el análisis de actividades de promoción de la salud.</p>
+  <div class="drop-zone" id="drop-zone">
+    <div class="ico">📂</div>
+    <p><strong>Arrastra el CSV aquí</strong> o haz clic para seleccionarlo</p>
+    <p style="margin-top:6px;font-size:.75rem">Formato REDCap · separador coma · UTF-8 o latin1</p>
+    <button class="btn btn-p" style="margin-top:14px" onclick="document.getElementById('file-csv').click()">Seleccionar archivo</button>
+  </div>
+  <div id="csv-demo-btn" style="margin-top:20px">
+    <button class="btn btn-s" id="btn-demo">🎲 Cargar datos de prueba</button>
+  </div>
+</div>
 
-        <!-- COMPARATIVAS TEMPORALES -->
-        <div class="comparativas-panel" id="comparativas-panel" style="display: none;">
-            <h2>📈 Comparativas Temporales</h2>
-            <div class="periodo-selector">
-                <div class="periodo-grupo">
-                    <label>Período actual:</label>
-                    <select id="periodo-actual">
-                        <option value="mes-actual">Mes actual</option>
-                        <option value="trimestre-actual" selected>Trimestre actual</option>
-                        <option value="año-actual">Año actual</option>
-                    </select>
-                </div>
-                <div class="periodo-grupo">
-                    <label>Comparar con:</label>
-                    <select id="periodo-comparar">
-                        <option value="anterior" selected>Período anterior</option>
-                        <option value="año-anterior">Mismo período año anterior</option>
-                    </select>
-                </div>
-                <div class="periodo-grupo">
-                    <button class="btn btn-primary" id="btn-actualizar-comparativa">Actualizar comparativa</button>
-                </div>
-            </div>
-            <div class="comparativa-cards" id="comparativa-cards"></div>
-        </div>
-
-        <!-- DASHBOARD PROFESIONAL INDIVIDUAL -->
-        <div class="dashboard-profesional" id="dashboard-profesional" style="display: none;">
-            <h2>👤 Mi Dashboard Personal</h2>
-            <p id="profesional-nombre"></p>
-            <div class="profesional-info" id="profesional-info"></div>
-
-            <!-- Botón para generar informe exhaustivo -->
-            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #1976d2, #2196f3); border-radius: 8px; text-align: center;">
-                <button onclick="generarInformeProfesionalExhaustivo()" style="background: white; color: #1976d2; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                    📄 GENERAR MI INFORME PROFESIONAL COMPLETO
-                </button>
-                <p style="color: white; margin: 10px 0 0 0; font-size: 13px;">
-                    Documento exhaustivo con todas tus actividades y evidencias para justificar objetivos
-                </p>
-            </div>
-        </div>
-
-        <!-- ANÁLISIS DE BRECHAS -->
-        <div class="brechas-panel" id="brechas-panel" style="display: none;">
-            <h2>🎯 Análisis de Brechas y Oportunidades</h2>
-            <div class="brechas-grid" id="brechas-grid"></div>
-        </div>
-
-        <!-- MEJORA 6: FILTROS GUARDADOS / PERFILES -->
-        <div class="perfiles-panel" id="perfiles-panel" style="display: none;">
-            <h2>⭐ Mis Perfiles Guardados</h2>
-            <div class="perfiles-acciones">
-                <input type="text" id="perfil-nombre-input" class="perfil-input" placeholder="Nombre del perfil (ej: Mi unidad - Último trimestre)">
-                <button class="btn btn-primary" id="btn-guardar-perfil">💾 Guardar filtros actuales</button>
-            </div>
-            <div class="perfiles-lista" id="perfiles-lista"></div>
-        </div>
-
-        <!-- MEJORA 7: MÉTRICAS DE EFICIENCIA -->
-        <div class="eficiencia-panel" id="eficiencia-panel" style="display: none;">
-            <h2>⚡ Métricas de Eficiencia</h2>
-            <div class="eficiencia-grid" id="eficiencia-grid"></div>
-        </div>
-
-        <!-- MEJORA 9: ANÁLISIS PREDICTIVO -->
-        <div class="predictivo-panel" id="predictivo-panel" style="display: none;">
-            <h2>🔮 Proyecciones y Tendencias</h2>
-            <div class="predictivo-cards" id="predictivo-cards"></div>
-            <div class="predictivo-grafico">
-                <canvas id="grafico-predictivo"></canvas>
-            </div>
-        </div>
-
-        <!-- ======================================== -->
-        <!-- 🆕 NUEVOS PANELES v4.0 (MEJORAS 11-15) -->
-        <!-- ======================================== -->
-
-        <!-- 🆕 MEJORA 11: ANÁLISIS DE CORRELACIONES -->
-        <div class="correlaciones-panel" id="correlaciones-panel" style="display: none;">
-            <h2>🔗 Análisis de Correlaciones</h2>
-            <p>Análisis de relaciones entre diferentes métricas del sistema</p>
-            <div class="matriz-correlacion" id="correlaciones-grid"></div>
-        </div>
-
-        <!-- 🆕 MEJORA 12: BENCHMARK Y PERCENTILES -->
-        <div class="benchmark-panel" id="benchmark-panel" style="display: none;">
-            <h2>📏 Benchmark y Clasificación por Percentiles</h2>
-            <p>Clasificación de unidades y profesionales según su rendimiento comparativo</p>
-            <div class="percentiles-grid" id="percentiles-grid"></div>
-        </div>
-
-        <!-- 🆕 MEJORA 13: EXPORTACIÓN PDF -->
-        <div class="pdf-panel" id="pdf-panel" style="display: none;">
-            <h2>📄 Generador de Informes PDF</h2>
-            <p>Exporta informes profesionales en formato PDF con gráficos y análisis</p>
-            <div class="pdf-opciones">
-                <div class="pdf-opcion" onclick="generarPDFEjecutivo()">
-                    <div class="pdf-opcion-icono">📊</div>
-                    <div class="pdf-opcion-titulo">Resumen Ejecutivo</div>
-                    <div class="pdf-opcion-desc">KPIs principales y métricas clave</div>
-                </div>
-                <div class="pdf-opcion" onclick="generarPDFCompleto()">
-                    <div class="pdf-opcion-icono">📈</div>
-                    <div class="pdf-opcion-titulo">Informe Completo</div>
-                    <div class="pdf-opcion-desc">Análisis detallado con todos los gráficos</div>
-                </div>
-                <div class="pdf-opcion" onclick="generarPDFComparativo()">
-                    <div class="pdf-opcion-icono">⚖️</div>
-                    <div class="pdf-opcion-titulo">Análisis Comparativo</div>
-                    <div class="pdf-opcion-desc">Comparación entre distritos y unidades</div>
-                </div>
-                <div class="pdf-opcion" onclick="generarPDFPersonalizado()">
-                    <div class="pdf-opcion-icono">⚙️</div>
-                    <div class="pdf-opcion-titulo">Personalizado</div>
-                    <div class="pdf-opcion-desc">Selecciona los elementos a incluir</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 🆕 MEJORA 14: MODO COMPARACIÓN -->
-        <div class="comparacion-panel" id="comparacion-panel" style="display: none;">
-            <h2>⚖️ Modo Comparación Directa</h2>
-            <p>Compara dos entidades (unidades o profesionales) lado a lado</p>
-            <div class="comparacion-selectores">
-                <div class="comparacion-selector">
-                    <label>Entidad 1:</label>
-                    <select id="comparacion-entidad1" onchange="actualizarComparacion()">
-                        <option value="">-- Seleccionar --</option>
-                    </select>
-                </div>
-                <div class="comparacion-vs">VS</div>
-                <div class="comparacion-selector">
-                    <label>Entidad 2:</label>
-                    <select id="comparacion-entidad2" onchange="actualizarComparacion()">
-                        <option value="">-- Seleccionar --</option>
-                    </select>
-                </div>
-            </div>
-            <div class="comparacion-resultados" id="comparacion-resultados"></div>
-        </div>
-
-        <!-- 🆕 MEJORA 15: BÚSQUEDA AVANZADA -->
-        <div class="busqueda-avanzada-panel" id="busqueda-panel" style="display: none;">
-            <h2>🔎 Búsqueda Avanzada en Datos</h2>
-            <p>Aplica múltiples criterios de búsqueda simultáneamente</p>
-            <div class="busqueda-avanzada-controles">
-                <div class="busqueda-campo">
-                    <label>Profesional:</label>
-                    <input type="text" id="busqueda-profesional" placeholder="Nombre del profesional...">
-                </div>
-                <div class="busqueda-campo">
-                    <label>Actividad:</label>
-                    <input type="text" id="busqueda-actividad" placeholder="Nombre de actividad...">
-                </div>
-                <div class="busqueda-campo">
-                    <label>Temática:</label>
-                    <select id="busqueda-tematica">
-                        <option value="">-- Todas --</option>
-                    </select>
-                </div>
-                <div class="busqueda-campo">
-                    <label>Tipo:</label>
-                    <select id="busqueda-tipo">
-                        <option value="">-- Todos --</option>
-                    </select>
-                </div>
-                <div class="busqueda-campo">
-                    <label>Participantes mínimos:</label>
-                    <input type="number" id="busqueda-min-participantes" placeholder="0">
-                </div>
-                <div class="busqueda-campo">
-                    <label>Zona desfavorecida:</label>
-                    <select id="busqueda-zona">
-                        <option value="">-- Todas --</option>
-                        <option value="1">Sí</option>
-                        <option value="0">No</option>
-                    </select>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button class="btn btn-primary" onclick="aplicarBusquedaAvanzada()">🔍 Buscar</button>
-                <button class="btn btn-secondary" onclick="limpiarBusquedaAvanzada()">🔄 Limpiar</button>
-            </div>
-            <div class="busqueda-resultados-info" id="busqueda-info" style="display: none;">
-                <span class="busqueda-resultados-contador" id="busqueda-contador"></span>
-                <button class="busqueda-limpiar" onclick="limpiarBusquedaAvanzada()">✕ Cerrar búsqueda</button>
-            </div>
-        </div>
-
-        <!-- PANEL DE NIVEL DE ANÁLISIS -->
-        <div class="nivel-panel">
-            <h2>🎯 Seleccionar Nivel de Análisis</h2>
-            <div class="nivel-selector">
-                <div class="nivel-grupo">
-                    <label>Nivel de agregación:</label>
-                    <select id="nivel-agregacion">
-                        <option value="global">🌍 Distrito Sanitario Granada-Metropolitano (Total)</option>
-                        <option value="distrito-granada">📍 Distrito Granada</option>
-                        <option value="distrito-metro">📍 Distrito Metropolitano de Granada</option>
-                        <option value="unidad">🏥 Por Unidad Asistencial</option>
-                        <option value="profesional">👤 Por Profesional</option>
-                    </select>
-                </div>
-
-                <div class="nivel-grupo" id="grupo-unidad" style="display: none;">
-                    <label>Seleccionar Unidad:</label>
-                    <select id="select-unidad">
-                        <option value="">-- Todas las unidades --</option>
-                    </select>
-                </div>
-
-                <div class="nivel-grupo" id="grupo-profesional" style="display: none;">
-                    <label>Seleccionar Profesional:</label>
-                    <select id="select-profesional">
-                        <option value="">-- Todos los profesionales --</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- NIVEL ACTUAL -->
-        <div class="nivel-actual" id="nivel-actual-info">
-            <h3>📌 Nivel de análisis actual:</h3>
-            <p class="info" id="nivel-actual-texto">Distrito Sanitario Granada-Metropolitano (Total)</p>
-        </div>
-
-        <!-- PANEL DE FILTROS -->
-        <div class="filtros-panel">
-            <h2>🔍 Filtros avanzados</h2>
-            <div class="filtros-grid">
-                <div class="filtro-grupo">
-                    <label>Fecha desde:</label>
-                    <input type="date" id="filtro-fecha-desde">
-                </div>
-                <div class="filtro-grupo">
-                    <label>Fecha hasta:</label>
-                    <input type="date" id="filtro-fecha-hasta">
-                </div>
-                <div class="filtro-grupo">
-                    <label>Tipo de actividad:</label>
-                    <select id="filtro-tipo-actividad">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div class="filtro-grupo">
-                    <label>Temática:</label>
-                    <select id="filtro-tematica">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div class="filtro-grupo">
-                    <label>Programa:</label>
-                    <select id="filtro-programa">
-                        <option value="">Todos</option>
-                    </select>
-                </div>
-            </div>
-            <button class="btn btn-primary" id="btn-aplicar-filtros">Aplicar filtros</button>
-            <button class="btn btn-secondary" id="btn-limpiar-filtros">Limpiar filtros</button>
-        </div>
-
-        <!-- KPIs PRINCIPALES -->
-        <div class="kpis-grid" id="kpis-container">
-            <div class="kpi-card">
-                <div class="icono">📋</div>
-                <div class="valor" id="kpi-actividades">0</div>
-                <div class="etiqueta">Actividades</div>
-            </div>
-            <div class="kpi-card">
-                <div class="icono">👥</div>
-                <div class="valor" id="kpi-participantes">0</div>
-                <div class="etiqueta">Participantes</div>
-            </div>
-            <div class="kpi-card">
-                <div class="icono">⏱️</div>
-                <div class="valor" id="kpi-horas">0</div>
-                <div class="etiqueta">Horas totales</div>
-            </div>
-            <div class="kpi-card">
-                <div class="icono">🎯</div>
-                <div class="valor" id="kpi-sesiones">0</div>
-                <div class="etiqueta">Sesiones</div>
-            </div>
-            <div class="kpi-card">
-                <div class="icono">♂️</div>
-                <div class="valor" id="kpi-hombres">0</div>
-                <div class="etiqueta">Hombres</div>
-                <div class="subtexto" id="kpi-hombres-pct">0%</div>
-            </div>
-            <div class="kpi-card">
-                <div class="icono">♀️</div>
-                <div class="valor" id="kpi-mujeres">0</div>
-                <div class="etiqueta">Mujeres</div>
-                <div class="subtexto" id="kpi-mujeres-pct">0%</div>
-            </div>
-        </div>
-
-        <!-- RANKINGS (solo visible en ciertos niveles) -->
-        <div id="rankings-container" style="display: none;">
-            <div class="graficos-grid">
-                <div class="ranking-card">
-                    <h3 id="ranking-titulo-1">🏆 Top 10 Unidades por Actividades</h3>
-                    <div id="ranking-1"></div>
-                </div>
-                <div class="ranking-card">
-                    <h3 id="ranking-titulo-2">👥 Top 10 Profesionales por Participantes</h3>
-                    <div id="ranking-2"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- GRÁFICOS -->
-        <div class="graficos-grid">
-            <div class="grafico-card">
-                <button class="grafico-export-btn" data-chart="grafico-tipos">📥 Descargar PNG</button>
-                <h3>📊 Actividades por tipo</h3>
-                <div class="grafico-container">
-                    <canvas id="grafico-tipos"></canvas>
-                </div>
-            </div>
-            <div class="grafico-card">
-                <button class="grafico-export-btn" data-chart="grafico-tematicas">📥 Descargar PNG</button>
-                <h3>📚 Actividades por temática</h3>
-                <div class="grafico-container">
-                    <canvas id="grafico-tematicas"></canvas>
-                </div>
-            </div>
-            <div class="grafico-card">
-                <button class="grafico-export-btn" data-chart="grafico-programas">📥 Descargar PNG</button>
-                <h3>🎯 Distribución por programa</h3>
-                <div class="grafico-container">
-                    <canvas id="grafico-programas"></canvas>
-                </div>
-            </div>
-            <div class="grafico-card">
-                <button class="grafico-export-btn" data-chart="grafico-genero">📥 Descargar PNG</button>
-                <h3>👥 Participantes por sexo</h3>
-                <div class="grafico-container">
-                    <canvas id="grafico-genero"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="graficos-grid">
-            <div class="grafico-card">
-                <button class="grafico-export-btn" data-chart="grafico-distritos">📥 Descargar PNG</button>
-                <h3 id="titulo-grafico-comparativo">📊 Comparativa por Distrito</h3>
-                <div class="grafico-container">
-                    <canvas id="grafico-distritos"></canvas>
-                </div>
-            </div>
-            <div class="grafico-card">
-                <button class="grafico-export-btn" data-chart="grafico-mensual">📥 Descargar PNG</button>
-                <h3>📈 Evolución mensual</h3>
-                <div class="grafico-container">
-                    <canvas id="grafico-mensual"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- TABLA DE DATOS CON PESTAÑAS -->
-        <div class="tabla-container">
-            <div class="tabla-header">
-                <h3>📋 Detalle de actividades</h3>
-                <input type="text" id="busqueda-tabla" class="busqueda-input" placeholder="Buscar por actividad o profesional...">
-            </div>
-
-            <!-- Pestañas -->
-            <div class="tabs-container">
-                <div class="tab active" data-tab="granada">📍 Distrito Granada</div>
-                <div class="tab" data-tab="metro">📍 Distrito Metropolitano</div>
-                <div class="tab" data-tab="ambos">🌍 Distrito Granada-Metropolitano</div>
-            </div>
-
-            <!-- Contenido de las pestañas -->
-            <div class="tab-content active" id="tab-granada">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Unidad</th>
-                            <th>Profesional</th>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Actividad</th>
-                            <th>Participantes</th>
-                            <th>Horas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-body-granada">
-                    </tbody>
-                </table>
-                <div class="paginacion-container">
-                    <div class="paginacion-info" id="paginacion-granada"></div>
-                    <div class="paginacion-botones">
-                        <button class="btn btn-secondary" id="btn-anterior-granada">← Anterior</button>
-                        <button class="btn btn-secondary" id="btn-siguiente-granada">Siguiente →</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="tab-metro">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Unidad</th>
-                            <th>Profesional</th>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Actividad</th>
-                            <th>Participantes</th>
-                            <th>Horas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-body-metro">
-                    </tbody>
-                </table>
-                <div class="paginacion-container">
-                    <div class="paginacion-info" id="paginacion-metro"></div>
-                    <div class="paginacion-botones">
-                        <button class="btn btn-secondary" id="btn-anterior-metro">← Anterior</button>
-                        <button class="btn btn-secondary" id="btn-siguiente-metro">Siguiente →</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="tab-ambos">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Distrito</th>
-                            <th>Unidad</th>
-                            <th>Profesional</th>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Actividad</th>
-                            <th>Participantes</th>
-                            <th>Horas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-body-ambos">
-                    </tbody>
-                </table>
-                <div class="paginacion-container">
-                    <div class="paginacion-info" id="paginacion-ambos"></div>
-                    <div class="paginacion-botones">
-                        <button class="btn btn-secondary" id="btn-anterior-ambos">← Anterior</button>
-                        <button class="btn btn-secondary" id="btn-siguiente-ambos">Siguiente →</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- ── NIVEL / FILTROS (compartido) ──────────────────────────────── -->
+<div id="controles" style="display:none">
+  <div class="nivel-bar">
+    <div class="fg">
+      <label>Nivel de análisis</label>
+      <select id="sel-nivel">
+        <option value="global">🌍 Distrito Granada-Metropolitano</option>
+        <option value="granada">📍 Distrito Granada</option>
+        <option value="metro">📍 Distrito Metropolitano</option>
+        <option value="unidad">🏥 Por Unidad Asistencial</option>
+        <option value="profesional">👤 Por Profesional</option>
+      </select>
     </div>
+    <div class="fg" id="grp-unidad" style="display:none">
+      <label>Unidad</label>
+      <select id="sel-unidad"><option value="">— Todas —</option></select>
+    </div>
+    <div class="fg" id="grp-prof" style="display:none">
+      <label>Profesional</label>
+      <select id="sel-prof"><option value="">— Todos —</option></select>
+    </div>
+  </div>
+  <div class="filtros-bar">
+    <h2>🔍 Filtros</h2>
+    <div class="filtros-grid">
+      <div class="fg"><label>Fecha desde</label><input type="date" id="f-desde"></div>
+      <div class="fg"><label>Fecha hasta</label><input type="date" id="f-hasta"></div>
+      <div class="fg"><label>Tipo actividad</label><select id="f-tipo"><option value="">Todos</option></select></div>
+      <div class="fg"><label>Temática</label><select id="f-tema"><option value="">Todas</option></select></div>
+      <div class="fg"><label>Programa</label><select id="f-prog"><option value="">Todos</option></select></div>
+      <div class="fg"><label>Zona desfavorecida</label>
+        <select id="f-zona"><option value="">Todas</option><option value="1">Sí</option><option value="0">No</option></select>
+      </div>
+      <div class="fg" style="justify-content:flex-end;flex-direction:row;gap:6px;align-items:flex-end">
+        <button class="btn btn-p" id="btn-filtrar">Aplicar</button>
+        <button class="btn btn-s" id="btn-limpiar-f">Limpiar</button>
+      </div>
+    </div>
+  </div>
+  <div class="info-banner" id="info-nivel">📌 Distrito Granada-Metropolitano · <span id="info-n">0</span> registros</div>
+</div>
 
-    <!-- FOOTER CON INFORMACIÓN DE LICENCIA -->
-    <footer style="background: linear-gradient(135deg, #37474f, #263238); color: white; padding: 30px; margin-top: 40px; text-align: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 20px; margin-bottom: 10px; font-weight: 600;">📊 RAPS_DGRAMET v4.0</h3>
-                <p style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">Registro de Actuaciones de Promoción de la Salud</p>
-                <p style="font-size: 13px; opacity: 0.85; margin-bottom: 5px;">Distrito Sanitario Granada-Metropolitano</p>
-                <p style="font-size: 12px; opacity: 0.8;">Última actualización: Octubre 2025</p>
-            </div>
+<!-- ── PANEL: DASHBOARD ───────────────────────────────────────────── -->
+<div class="panel active" id="p-dashboard">
+  <div class="sec-header"><span class="sec-title">Dashboard principal</span></div>
+  <div class="g6 mb16" id="kpis"></div>
+  <div class="g3 mb16" id="charts-row1"></div>
+  <div class="g3 mb16" id="charts-row2"></div>
+  <div class="g2 mb16" id="rankings-wrap"></div>
+</div>
 
-            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left; max-width: 800px; margin-left: auto; margin-right: auto;">
-                <h4 style="font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 20px;">⚖️</span> Licencia MIT
-                </h4>
-                <p style="font-size: 13px; line-height: 1.8; opacity: 0.95; margin-bottom: 10px;">
-                    <strong>Software:</strong> Copyright © 2025 BR Hermoso
-                </p>
-                <p style="font-size: 12px; line-height: 1.7; opacity: 0.9; margin-bottom: 12px;">
-                    Este software se proporciona bajo la <strong>Licencia MIT</strong>. Se concede permiso gratuito a cualquier persona
-                    que obtenga una copia de este software para usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar
-                    y/o vender copias del software, sujeto a las condiciones de la licencia MIT completa.
-                </p>
-                <p style="font-size: 11px; line-height: 1.6; opacity: 0.85; margin-bottom: 12px; font-style: italic;">
-                    EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA.
-                </p>
-                <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; margin-top: 12px;">
-                    <p style="font-size: 11px; line-height: 1.6; opacity: 0.85;">
-                        <strong>NOTA SOBRE LOS DATOS:</strong> Los datos de actuaciones, profesionales y unidades asistenciales
-                        procesados por este software son propiedad del Distrito Sanitario Granada-Metropolitano del Servicio Andaluz
-                        de Salud. El código del software está licenciado bajo MIT, pero los datos utilizados están sujetos a las
-                        políticas de protección de datos y propiedad del distrito sanitario correspondiente.
-                    </p>
-                </div>
-            </div>
+<!-- ── PANEL: TABLA ───────────────────────────────────────────────── -->
+<div class="panel" id="p-tabla">
+  <div class="sec-header">
+    <span class="sec-title">Tabla de actividades</span>
+    <div style="display:flex;gap:8px">
+      <input id="busqueda-tabla" placeholder="🔍 Buscar…" style="padding:6px 10px;border:1px solid var(--borde);border-radius:6px;font-size:.8rem;width:220px;outline:none">
+    </div>
+  </div>
+  <div class="tbl-wrap mb8">
+    <table>
+      <thead><tr>
+        <th>Distrito</th><th>Unidad</th><th>Profesional</th><th>Fecha</th>
+        <th>Tipo</th><th>Actividad</th><th>Temática</th><th>Programa</th>
+        <th>Participantes</th><th>Horas</th><th>Zona desf.</th>
+      </tr></thead>
+      <tbody id="tbody-tabla"></tbody>
+    </table>
+  </div>
+  <div class="pag">
+    <span class="pag-info" id="pag-info">—</span>
+    <button class="btn btn-s" id="btn-prev">← Anterior</button>
+    <button class="btn btn-s" id="btn-next">Siguiente →</button>
+  </div>
+</div>
 
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-                <p style="font-size: 13px; opacity: 0.9; margin-bottom: 10px;">
-                    <strong>✨ Características principales:</strong>
-                </p>
-                <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; font-size: 12px; opacity: 0.85;">
-                    <span>📊 Análisis avanzado de datos</span>
-                    <span>📈 Visualización interactiva</span>
-                    <span>🔍 Filtrado múltiple</span>
-                    <span>📁 Exportación Excel/PDF</span>
-                    <span>🎯 Análisis por niveles</span>
-                    <span>🔄 Comparativas y correlaciones</span>
-                </div>
-            </div>
+<!-- ── PANEL: DEMOGRÁFICO ─────────────────────────────────────────── -->
+<div class="panel" id="p-demografico">
+  <div class="sec-title mb16">Análisis demográfico</div>
+  <div class="g4 mb16" id="kpis-demo"></div>
+  <div class="g3 mb16">
+    <div class="chart-card"><h3>👥 Distribución por sexo</h3><div class="chart-wrap"><canvas id="ch-sexo"></canvas></div></div>
+    <div class="chart-card"><h3>🎯 Población destinataria</h3><div class="chart-wrap"><canvas id="ch-pob"></canvas></div></div>
+    <div class="chart-card"><h3>🏠 Zona desfavorecida</h3><div class="chart-wrap"><canvas id="ch-zona"></canvas></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>📍 Lugar de realización</h3><div class="chart-wrap" style="height:280px"><canvas id="ch-lugar"></canvas></div></div>
+    <div class="chart-card"><h3>⏰ Distribución horaria</h3><div class="chart-wrap" style="height:280px"><canvas id="ch-horario"></canvas></div></div>
+  </div>
+</div>
 
-            <div style="margin-top: 25px; font-size: 12px; opacity: 0.8;">
-                <p>Desarrollado con ❤️ para la promoción de la salud</p>
-                <p style="margin-top: 5px;">HTML5 + JavaScript + Chart.js + PapaParse + XLSX + jsPDF</p>
-            </div>
-        </div>
-    </footer>
+<!-- ── PANEL: TERRITORIAL ─────────────────────────────────────────── -->
+<div class="panel" id="p-territorial">
+  <div class="sec-title mb16">Análisis territorial</div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>📍 Actividades por distrito</h3><div class="chart-wrap"><canvas id="ch-distritos"></canvas></div></div>
+    <div class="chart-card"><h3>👥 Participantes por distrito</h3><div class="chart-wrap"><canvas id="ch-dist-part"></canvas></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card"><div class="card-title">🏆 Top unidades — Actividades</div><div id="rank-unid-act"></div></div>
+    <div class="card"><div class="card-title">👥 Top unidades — Participantes</div><div id="rank-unid-part"></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>🌍 Distribución unidades Granada</h3><div class="chart-wrap" style="height:280px"><canvas id="ch-ugranada"></canvas></div></div>
+    <div class="chart-card"><h3>🌍 Distribución unidades Metro</h3><div class="chart-wrap" style="height:280px"><canvas id="ch-umetro"></canvas></div></div>
+  </div>
+</div>
 
-    <!-- JAVASCRIPT -->
-    <script type="module" src="js/main.js"></script>
+<!-- ── PANEL: PROFESIONAL ─────────────────────────────────────────── -->
+<div class="panel" id="p-profesional">
+  <div class="sec-title mb16">Análisis por profesional</div>
+  <div class="g3 mb16">
+    <div class="chart-card"><h3>👔 Categoría profesional</h3><div class="chart-wrap"><canvas id="ch-categoria"></canvas></div></div>
+    <div class="chart-card"><h3>🩺 Especialidad enfermería</h3><div class="chart-wrap"><canvas id="ch-espec"></canvas></div></div>
+    <div class="chart-card"><h3>⚥ Sexo profesional</h3><div class="chart-wrap"><canvas id="ch-sexo-prof"></canvas></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card"><div class="card-title">🏆 Top 15 — Actividades realizadas</div><div id="rank-prof-act"></div></div>
+    <div class="card"><div class="card-title">👥 Top 15 — Participantes alcanzados</div><div id="rank-prof-part"></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card"><div class="card-title">⏱️ Top 15 — Horas dedicadas</div><div id="rank-prof-horas"></div></div>
+    <div class="card"><div class="card-title">📈 Eficiencia — Participantes por hora</div><div id="rank-prof-ef"></div></div>
+  </div>
+</div>
+
+<!-- ── PANEL: TEMPORAL ────────────────────────────────────────────── -->
+<div class="panel" id="p-temporal">
+  <div class="sec-title mb16">Análisis temporal</div>
+  <div class="g2 mb16">
+    <div class="chart-card" style="grid-column:1/-1"><h3>📈 Evolución mensual de actividades y participantes</h3><div class="chart-wrap" style="height:260px"><canvas id="ch-mensual"></canvas></div></div>
+  </div>
+  <div class="g3 mb16">
+    <div class="chart-card"><h3>📅 Actividades por trimestre</h3><div class="chart-wrap"><canvas id="ch-trimestre"></canvas></div></div>
+    <div class="chart-card"><h3>📊 Actividades por mes</h3><div class="chart-wrap"><canvas id="ch-mes"></canvas></div></div>
+    <div class="chart-card"><h3>🗓️ Distribución semanal</h3><div class="chart-wrap"><canvas id="ch-diasem"></canvas></div></div>
+  </div>
+  <div class="card mb16">
+    <div class="card-title">🗓️ Mapa de calor mensual — Actividades</div>
+    <div id="heatmap-wrap" style="overflow-x:auto;padding:8px 0"></div>
+  </div>
+</div>
+
+<!-- ── PANEL: PROGRAMAS ───────────────────────────────────────────── -->
+<div class="panel" id="p-programas">
+  <div class="sec-title mb16">Análisis por programa y temática</div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>🎯 Distribución por programa</h3><div class="chart-wrap" style="height:300px"><canvas id="ch-programas"></canvas></div></div>
+    <div class="chart-card"><h3>📚 Distribución por temática</h3><div class="chart-wrap" style="height:300px"><canvas id="ch-tematicas"></canvas></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>🔢 Tipo de actividad</h3><div class="chart-wrap" style="height:300px"><canvas id="ch-tipos"></canvas></div></div>
+    <div class="card">
+      <div class="card-title">📊 Estadísticas por programa</div>
+      <div id="tabla-programas"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL: BRECHAS / EQUIDAD ───────────────────────────────────── -->
+<div class="panel" id="p-brechas">
+  <div class="sec-title mb16">Análisis de equidad y brechas</div>
+  <div class="g4 mb16" id="kpis-brechas"></div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>⚖️ Actividades: zona desfavorecida vs. no</h3><div class="chart-wrap"><canvas id="ch-brechas-act"></canvas></div></div>
+    <div class="chart-card"><h3>👥 Participantes: zona desfavorecida vs. no</h3><div class="chart-wrap"><canvas id="ch-brechas-part"></canvas></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="chart-card"><h3>🎯 Programas en zonas desfavorecidas</h3><div class="chart-wrap" style="height:280px"><canvas id="ch-prog-desf"></canvas></div></div>
+    <div class="card">
+      <div class="card-title">📋 Brecha por unidad</div>
+      <div id="brecha-unidades"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL: EFICIENCIA ──────────────────────────────────────────── -->
+<div class="panel" id="p-eficiencia">
+  <div class="sec-title mb16">Métricas de eficiencia</div>
+  <div class="g6 mb16" id="kpis-ef"></div>
+  <div class="g3 mb16">
+    <div class="chart-card"><h3>⚡ Participantes por hora (por tipo)</h3><div class="chart-wrap"><canvas id="ch-ef-tipo"></canvas></div></div>
+    <div class="chart-card"><h3>📦 Tamaño medio de sesión (participantes)</h3><div class="chart-wrap"><canvas id="ch-ef-sesion"></canvas></div></div>
+    <div class="chart-card"><h3>📐 Horas por actividad (por tipo)</h3><div class="chart-wrap"><canvas id="ch-ef-horas"></canvas></div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card"><div class="card-title">🏆 Unidades más eficientes (participantes/hora)</div><div id="rank-ef-unid"></div></div>
+    <div class="card"><div class="card-title">🔝 Programas más intensivos (horas totales)</div><div id="rank-ef-prog"></div></div>
+  </div>
+</div>
+
+<!-- ── PANEL: ALERTAS ─────────────────────────────────────────────── -->
+<div class="panel" id="p-alertas">
+  <div class="sec-title mb16">Alertas e indicadores de seguimiento</div>
+  <div id="alertas-list"></div>
+</div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div><h4>RAPS · DGRAMET v5.0</h4><p>Registro de Actuaciones de Promoción de la Salud</p><p>Distrito Sanitario Granada-Metropolitano · mayo 2026</p></div>
+    <div><p>Licencia MIT · Software © 2025 BR Hermoso</p><p>Datos: propiedad del DS Granada-Metropolitano / SAS</p></div>
+    <div><p style="font-size:.7rem;color:var(--sub)">Chart.js · PapaParse · XLSX.js · HTML5</p></div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════
+const C = {
+  f: {
+    fecha:'fecha_de_inicio', actividad:'nombre_de_la_actividad',
+    tipo:'tipo_de_actividad', tematica:'qu_tem_tica_s_aborda_la_ac',
+    programa:'en_qu_estrategia_plan_inte', participantes:'asist_total',
+    hombres:'asist_hombres', mujeres:'asist_mujeres',
+    horas:'n_mero_de_horas', sesiones:'n_mero_de_sesiones',
+    profesional:'apellidos_y_nombre', distrito:'distrito0',
+    u_granada:'unidad_asistencial', u_metro:'unidad_asistencial_2',
+    sexo_prof:'sexo', categoria:'categor_a_profesional',
+    especialidad:'especialidad_de_enfermer_a', record:'record_id',
+    horario:'horario', localidad:'localidad_donde_se_realiza',
+    zona:'es_una_zona_desfavorecidas', lugar:'lugar_de_realizaci_n_de_la',
+    poblacion:'poblaci_n_destinataria', fecha_reg:'fecha_del_registro',
+    fecha_fin:'fecha_de_fin'
+  },
+  tipo:{0:'Charla',1:'Comisión/grupo trabajo',2:'Control Alerta SP',3:'Entrevista/Reunión',4:'Intervención media',5:'IG: cuidadoras',6:'IG: dolor',7:'IG: diabetológica',8:'IG: EPOC/asma',9:'IG: rehab. cardiaca',10:'IG: rehab. respiratoria',11:'Ed. maternal',12:'GRAFA',13:'GRUSE',14:'IAHS',15:'PIOBIN',16:'PITA',17:'PSIA',18:'Mapeo activos',19:'Mesa/stand',20:'Ponencia',21:'Sesión clínica',22:'Sesión formativa',23:'Taller',24:'Otros'},
+  tema:{1:'Actividad física',2:'Activos salud',3:'Alimentación',4:'Bienestar emocional',5:'Conducta suicida',6:'Alcohol',7:'Tabaco',8:'Dolor',9:'Enf. transmisibles',10:'Envejecimiento',11:'Higiene manos',12:'Higiene postural',13:'Incontinencia',14:'IRAS',15:'Lactancia',16:'Manejo enf.',17:'Menopausia',18:'Otras adicciones',19:'Otras formas fumar',20:'Parentalidad',21:'Prev. accidentes',22:'Primeros auxilios',23:'Salud bucodental',24:'Sexualidad',25:'Uso medicamento',26:'Uso TRICs',27:'Vacunas',28:'Violencia género',29:'Voluntades vitales',30:'Otra'},
+  prog:{1:'C.C. Violencia Género',2:'En Buena Edad',3:'Escuela Pacientes',4:'AVISTA',5:'Est. Cuidados',6:'Seg. Paciente',7:'EVSA',8:'Forma Joven',9:'GRAFA',10:'GRUSE',11:'Jornadas salud',12:'Mapa Activos',13:'PAITSIDA',14:'PAPEF',15:'Plan Humanización',16:'PIOBIN',17:'PITA',18:'Participación ciudadana',19:'PSIA',20:'Prev. conducta suicida',21:'Por 1M pasos',22:'PromoSalud educ.',23:'PSLT',24:'RELAS',25:'Otros'},
+  ugranada:{0:'Albayzín',1:'Almanjáyar',2:'Cartuja',3:'Casería de Montijo',4:'Caleta',5:'Chana',6:'Gran Capitán',7:'Flores-Fígares',8:'Fortuny/Velluti',9:'Zaidín C-E',10:'Zaidín Sur',11:'Gógora',12:'Realejo',13:'Bola de Oro',14:'Doctores'},
+  umetro:{0:'Albolote',1:'Alfacar',2:'Alhama',3:'Armilla',4:'Atarfe',5:'Cenes',6:'Churriana',7:'Huétor-Tájar',8:'Huétor-Vega',9:'Íllora',10:'Iznalloz',11:'La Zubia',12:'Las Gabias',13:'Loja',14:'Maracena',15:'Montefrío',16:'Ogíjares',17:'Peligros',18:'Pinos Puente',19:'Santa Fe',20:'Valle Lecrín'},
+  categoria:{1:'A4 (Vet./Farm.)',2:'Enfermería',3:'Epidemiología AP',4:'Farmacia',5:'Fisioterapia',6:'Medicina Familia',7:'Pediatría',8:'Psicología clínica',9:'TEPSPC',10:'T. PRL',11:'T. salud ambiental',12:'T. ocupacional',13:'Trabajo Social',14:'Odontología',15:'Otros'},
+  especialidad:{1:'EBAP',2:'EFYC',3:'EGC',4:'ERCE',5:'Infanto-juvenil',6:'Matrona',7:'Trabajo',8:'Salud Pública',9:'SUAP'},
+  horario:{0:'Mañana',1:'Tarde',2:'Mañana y tarde'},
+  lugar:{0:'Centro salud',1:'Hospital',2:'Asoc./ONG',3:'C. residencial',4:'C. acogida',5:'C. sociosan.',6:'C. educativo',7:'Universidad',8:'Ayto./Municipal',9:'Empresa',10:'C. menores',11:'Penitenciario',12:'Radio/TV',13:'RRSS',14:'Otros'},
+  poblacion:{0:'Infancia',1:'Adolescencia',2:'Juventud',3:'Adulta',4:'Mayores',5:'General',6:'Mujeres',7:'Hombres',8:'Prof. sanitarios',9:'Prof. no sanitarios',10:'Enf. crónicas',11:'Salud mental',12:'Cuidadoras',13:'Migrantes',14:'Riesgo colectivo',15:'Vulnerabilidad'},
+  PAL:['#0074c8','#00acd9','#94d40b','#ffb61b','#ff6600','#dc143c'],
+  PAL_L:['rgba(0,116,200,.15)','rgba(0,172,217,.15)','rgba(148,212,11,.15)','rgba(255,182,27,.15)','rgba(255,102,0,.15)','rgba(220,20,60,.15)']
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════════════════
+const S = {
+  raw:[], filtrados:[], nivel:'global', unidad:'', prof:'',
+  pag:1, PPP:60, busq:'', charts:{}
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════════════════════
+function parseFecha(s){
+  if(!s)return null;
+  const p=String(s).split('/');
+  return p.length===3?new Date(p[2],p[1]-1,p[0]):null;
+}
+function fmtFecha(s){const f=parseFecha(s);return f?f.toLocaleDateString('es-ES'):'-';}
+function n(v){return parseInt(v)||0;}
+function nf(v){return parseFloat(v)||0;}
+function fmt(v){return Number(v).toLocaleString('es-ES');}
+function fmtD(v){return Number(v).toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});}
+function pct(a,b){return b>0?((a/b)*100).toFixed(1)+'%':'—';}
+function colPal(i){return C.PAL[i%C.PAL.length];}
+function colPalL(i){return C.PAL_L[i%C.PAL_L.length];}
+
+function unidadNombre(row){
+  const d=String(row[C.f.distrito]);
+  if(d==='0') return C.ugranada[String(row[C.f.u_granada])]||'Sin unidad';
+  if(d==='1') return C.umetro[String(row[C.f.u_metro])]||'Sin unidad';
+  return 'Sin unidad';
+}
+function unidadNombreCompleto(row){
+  const d=String(row[C.f.distrito]);
+  const n=unidadNombre(row);
+  return n+(d==='0'?' (Granada)':d==='1'?' (Metro)':'');
+}
+
+function destroyChart(id){if(S.charts[id]){S.charts[id].destroy();delete S.charts[id];}}
+
+function makeChart(id,cfg){
+  destroyChart(id);
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  S.charts[id]=new Chart(ctx,cfg);
+}
+
+function rankHTML(data,colorFn){
+  if(!data.length) return '<p style="color:var(--sub);text-align:center;padding:16px">Sin datos</p>';
+  const max=data[0].v;
+  return data.map((d,i)=>`
+    <div class="rank-item">
+      <div class="rank-pos">${i+1}</div>
+      <div class="rank-bar-wrap">
+        <div class="rank-name">${d.k}</div>
+        <div class="rank-bar"><div class="rank-fill" style="width:${(d.v/max*100).toFixed(1)}%;background:${colorFn(i)}"></div></div>
+      </div>
+      <div class="rank-val">${fmt(d.v)}</div>
+    </div>`).join('');
+}
+
+function contarPor(datos,campo,lookup){
+  const c={};
+  datos.forEach(r=>{const k=String(r[campo]);c[k]=(c[k]||0)+1;});
+  return Object.entries(c).map(([k,v])=>({k:lookup[k]||k,v})).sort((a,b)=>b.v-a.v);
+}
+function sumarPor(datos,campo,lookup,campoVal){
+  const c={};
+  datos.forEach(r=>{const k=String(r[campo]);c[k]=(c[k]||0)+nf(r[campoVal]);});
+  return Object.entries(c).map(([k,v])=>({k:lookup[k]||k,v:Math.round(v)})).sort((a,b)=>b.v-a.v);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CARGA Y FILTRADO
+// ═══════════════════════════════════════════════════════════════════
+function cargarCSV(file){
+  setLoading(true);
+  Papa.parse(file,{
+    header:true,skipEmptyLines:true,
+    complete(r){S.raw=r.data;postCarga();},
+    error(e){alert('Error CSV: '+e.message);setLoading(false);}
+  });
+}
+
+function postCarga(){
+  poblarSelectores();
+  aplicarFiltros();
+  document.getElementById('bienvenida').style.display='none';
+  document.getElementById('controles').style.display='block';
+  setLoading(false);
+}
+
+function poblarSelectores(){
+  // Tipos, temas, programas
+  ['f-tipo','f-tema','f-prog'].forEach(id=>document.getElementById(id).innerHTML='<option value="">Todos</option>');
+  poblarSel('f-tipo',C.tipo);poblarSel('f-tema',C.tema);poblarSel('f-prog',C.prog);
+
+  // Unidades
+  const su=document.getElementById('sel-unidad');
+  su.innerHTML='<option value="">— Todas —</option>';
+  Object.entries(C.ugranada).forEach(([k,v])=>{const o=document.createElement('option');o.value='g-'+k;o.textContent=v+' (Granada)';su.appendChild(o);});
+  Object.entries(C.umetro).forEach(([k,v])=>{const o=document.createElement('option');o.value='m-'+k;o.textContent=v+' (Metro)';su.appendChild(o);});
+
+  // Profesionales
+  const sp=document.getElementById('sel-prof');
+  sp.innerHTML='<option value="">— Todos —</option>';
+  const profs=[...new Set(S.raw.map(r=>r[C.f.profesional]).filter(Boolean))].sort();
+  profs.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sp.appendChild(o);});
+}
+
+function poblarSel(id,obj){
+  const el=document.getElementById(id);
+  Object.entries(obj).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v;el.appendChild(o);});
+}
+
+function aplicarFiltros(){
+  const desde=document.getElementById('f-desde').value;
+  const hasta=document.getElementById('f-hasta').value;
+  const tipo=document.getElementById('f-tipo').value;
+  const tema=document.getElementById('f-tema').value;
+  const prog=document.getElementById('f-prog').value;
+  const zona=document.getElementById('f-zona').value;
+  const busq=document.getElementById('busqueda-tabla').value.toLowerCase();
+
+  S.filtrados=S.raw.filter(r=>{
+    if(S.nivel==='granada'&&String(r[C.f.distrito])!=='0')return false;
+    if(S.nivel==='metro'&&String(r[C.f.distrito])!=='1')return false;
+    if(S.nivel==='unidad'&&S.unidad){
+      const[pref,id]=S.unidad.split('-');
+      if(pref==='g'){if(String(r[C.f.distrito])!=='0'||String(r[C.f.u_granada])!==id)return false;}
+      else{if(String(r[C.f.distrito])!=='1'||String(r[C.f.u_metro])!==id)return false;}
+    }
+    if(S.nivel==='profesional'&&S.prof&&r[C.f.profesional]!==S.prof)return false;
+    if(desde){const f=parseFecha(r[C.f.fecha]);if(!f||f<new Date(desde))return false;}
+    if(hasta){const f=parseFecha(r[C.f.fecha]);if(!f||f>new Date(hasta))return false;}
+    if(tipo&&String(r[C.f.tipo])!==tipo)return false;
+    if(tema&&String(r[C.f.tematica])!==tema)return false;
+    if(prog&&String(r[C.f.programa])!==prog)return false;
+    if(zona&&String(r[C.f.zona])!==zona)return false;
+    if(busq&&!(r[C.f.actividad]||'').toLowerCase().includes(busq)&&!(r[C.f.profesional]||'').toLowerCase().includes(busq))return false;
+    return true;
+  });
+
+  S.pag=1;
+  actualizarInfoBanner();
+  actualizarPanelActivo();
+}
+
+function actualizarInfoBanner(){
+  const nivel={global:'Distrito Granada-Metropolitano',granada:'Distrito Granada',metro:'Distrito Metropolitano',unidad:'Unidad seleccionada',profesional:'Profesional seleccionado'};
+  document.getElementById('info-nivel').innerHTML=`📌 ${nivel[S.nivel]} · <strong>${fmt(S.filtrados.length)}</strong> registros`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PANEL ACTIVO
+// ═══════════════════════════════════════════════════════════════════
+function actualizarPanelActivo(){
+  const tab=document.querySelector('.nav-tab.active')?.dataset.tab||'dashboard';
+  renderPanel(tab);
+}
+
+function renderPanel(tab){
+  switch(tab){
+    case 'dashboard':   renderDashboard();break;
+    case 'tabla':       renderTabla();break;
+    case 'demografico': renderDemografico();break;
+    case 'territorial': renderTerritorial();break;
+    case 'profesional': renderProfesional();break;
+    case 'temporal':    renderTemporal();break;
+    case 'programas':   renderProgramas();break;
+    case 'brechas':     renderBrechas();break;
+    case 'eficiencia':  renderEficiencia();break;
+    case 'alertas':     renderAlertas();break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════
+function renderDashboard(){
+  const d=S.filtrados;
+  const act=d.length;
+  const part=d.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+  const hom=d.reduce((s,r)=>s+n(r[C.f.hombres]),0);
+  const muj=d.reduce((s,r)=>s+n(r[C.f.mujeres]),0);
+  const hrs=d.reduce((s,r)=>s+nf(r[C.f.horas]),0);
+  const ses=d.reduce((s,r)=>s+n(r[C.f.sesiones]),0);
+  const profs=new Set(d.map(r=>r[C.f.profesional]).filter(Boolean)).size;
+  const unids=new Set(d.map(r=>unidadNombre(r))).size;
+  const desf=d.filter(r=>String(r[C.f.zona])==='1').length;
+
+  const kData=[
+    {ico:'📋',val:fmt(act),lbl:'Actividades',sub:''},
+    {ico:'👥',val:fmt(part),lbl:'Participantes',sub:`♂${fmt(hom)} ♀${fmt(muj)}`},
+    {ico:'⏱️',val:fmtD(hrs),lbl:'Horas totales',sub:act>0?fmtD(hrs/act)+' h/act':''},
+    {ico:'🎯',val:fmt(ses),lbl:'Sesiones',sub:act>0?fmtD(ses/act)+' ses/act':''},
+    {ico:'👤',val:fmt(profs),lbl:'Profesionales',sub:''},
+    {ico:'🏥',val:fmt(unids),lbl:'Unidades activas',sub:''},
+    {ico:'🏘️',val:fmt(desf),lbl:'Actividades zona desf.',sub:pct(desf,act)},
+    {ico:'📊',val:act>0?fmtD(part/act):'—',lbl:'Participantes/actividad',sub:''},
+  ];
+
+  document.getElementById('kpis').innerHTML=kData.map(k=>`
+    <div class="kpi"><div class="ico">${k.ico}</div><div class="val">${k.val}</div>
+    <div class="lbl">${k.lbl}</div>${k.sub?`<div class="sub">${k.sub}</div>`:''}</div>`).join('');
+
+  // Charts row 1
+  const tipos=contarPor(d,C.f.tipo,C.tipo).slice(0,8);
+  const temas=contarPor(d,C.f.tematica,C.tema).slice(0,8);
+  const progs=contarPor(d,C.f.programa,C.prog).slice(0,8);
+
+  document.getElementById('charts-row1').innerHTML=`
+    <div class="chart-card"><h3>📊 Tipos de actividad</h3><div class="chart-wrap"><canvas id="dash-tipos"></canvas></div></div>
+    <div class="chart-card"><h3>📚 Temáticas</h3><div class="chart-wrap"><canvas id="dash-temas"></canvas></div></div>
+    <div class="chart-card"><h3>🎯 Programas</h3><div class="chart-wrap"><canvas id="dash-progs"></canvas></div></div>`;
+
+  // Charts row 2 — mensual, sexo, distritos
+  document.getElementById('charts-row2').innerHTML=`
+    <div class="chart-card"><h3>📈 Evolución mensual</h3><div class="chart-wrap"><canvas id="dash-mensual"></canvas></div></div>
+    <div class="chart-card"><h3>👥 Sexo participantes</h3><div class="chart-wrap"><canvas id="dash-sexo"></canvas></div></div>
+    <div class="chart-card"><h3>📍 Por distrito</h3><div class="chart-wrap"><canvas id="dash-dist"></canvas></div></div>`;
+
+  setTimeout(()=>{
+    hbarChart('dash-tipos',tipos);
+    hbarChart('dash-temas',temas);
+    hbarChart('dash-progs',progs);
+
+    // Mensual
+    const porMes={};
+    d.forEach(r=>{const f=parseFecha(r[C.f.fecha]);if(f){const k=`${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,'0')}`;porMes[k]=(porMes[k]||0)+1;}});
+    const meses=Object.keys(porMes).sort();
+    makeChart('dash-mensual',{type:'line',data:{labels:meses,datasets:[{label:'Actividades',data:meses.map(m=>porMes[m]),borderColor:C.PAL[0],backgroundColor:C.PAL_L[0],tension:.4,fill:true,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+    // Sexo
+    makeChart('dash-sexo',{type:'doughnut',data:{labels:['Hombres','Mujeres'],datasets:[{data:[hom,muj],backgroundColor:[C.PAL[0],C.PAL[4]],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+    // Distritos
+    const g=d.filter(r=>String(r[C.f.distrito])==='0').length;
+    const m=d.filter(r=>String(r[C.f.distrito])==='1').length;
+    makeChart('dash-dist',{type:'bar',data:{labels:['Granada','Metropolitano'],datasets:[{data:[g,m],backgroundColor:[C.PAL[0],C.PAL[1]],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  },0);
+
+  // Rankings
+  const rankUnid={};
+  d.forEach(r=>{const u=unidadNombreCompleto(r);rankUnid[u]=(rankUnid[u]||{act:0,part:0});rankUnid[u].act++;rankUnid[u].part+=n(r[C.f.participantes]);});
+  const ruAct=Object.entries(rankUnid).map(([k,v])=>({k,v:v.act})).sort((a,b)=>b.v-a.v).slice(0,10);
+  const ruPart=Object.entries(rankUnid).map(([k,v])=>({k,v:v.part})).sort((a,b)=>b.v-a.v).slice(0,10);
+
+  document.getElementById('rankings-wrap').innerHTML=`
+    <div class="card"><div class="card-title">🏆 Top unidades — Actividades</div><div id="rk-u-act">${rankHTML(ruAct,colPal)}</div></div>
+    <div class="card"><div class="card-title">👥 Top unidades — Participantes</div><div id="rk-u-part">${rankHTML(ruPart,colPal)}</div></div>`;
+}
+
+function hbarChart(id,data){
+  makeChart(id,{type:'bar',data:{labels:data.map(d=>d.k),datasets:[{data:data.map(d=>d.v),backgroundColor:data.map((_,i)=>colPal(i)),borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:10}}}}}});
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TABLA
+// ═══════════════════════════════════════════════════════════════════
+function renderTabla(){
+  const d=S.filtrados;
+  const total=d.length;
+  const ini=(S.pag-1)*S.PPP;
+  const fin=Math.min(ini+S.PPP,total);
+  const pags=Math.ceil(total/S.PPP)||1;
+
+  document.getElementById('pag-info').textContent=`Página ${S.pag} de ${pags} · ${fmt(total)} registros`;
+
+  const tbody=document.getElementById('tbody-tabla');
+  tbody.innerHTML=d.slice(ini,fin).map(r=>{
+    const dist=String(r[C.f.distrito])==='0'?'Granada':'Metro';
+    return `<tr>
+      <td><span class="badge ${String(r[C.f.distrito])==='0'?'badge-a':'badge-t'}">${dist}</span></td>
+      <td>${unidadNombre(r)}</td>
+      <td>${r[C.f.profesional]||'—'}</td>
+      <td>${fmtFecha(r[C.f.fecha])}</td>
+      <td><span class="badge badge-d">${C.tipo[r[C.f.tipo]]||r[C.f.tipo]||'—'}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r[C.f.actividad]||''}">${r[C.f.actividad]||'—'}</td>
+      <td>${C.tema[r[C.f.tematica]]||'—'}</td>
+      <td>${C.prog[r[C.f.programa]]||'—'}</td>
+      <td>${fmt(n(r[C.f.participantes]))}<span style="color:var(--sub);font-size:.72rem"> ♂${n(r[C.f.hombres])} ♀${n(r[C.f.mujeres])}</span></td>
+      <td>${nf(r[C.f.horas])}</td>
+      <td>${String(r[C.f.zona])==='1'?'<span class="badge badge-r">Sí</span>':'<span class="badge badge-t">No</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('btn-prev').disabled=S.pag<=1;
+  document.getElementById('btn-next').disabled=S.pag>=pags;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DEMOGRÁFICO
+// ═══════════════════════════════════════════════════════════════════
+function renderDemografico(){
+  const d=S.filtrados;
+  const hom=d.reduce((s,r)=>s+n(r[C.f.hombres]),0);
+  const muj=d.reduce((s,r)=>s+n(r[C.f.mujeres]),0);
+  const tot=hom+muj;
+  const desf=d.filter(r=>String(r[C.f.zona])==='1').length;
+  const noDesf=d.length-desf;
+
+  document.getElementById('kpis-demo').innerHTML=`
+    <div class="kpi"><div class="ico">♂️</div><div class="val">${fmt(hom)}</div><div class="lbl">Hombres</div><div class="sub">${pct(hom,tot)}</div></div>
+    <div class="kpi"><div class="ico">♀️</div><div class="val">${fmt(muj)}</div><div class="lbl">Mujeres</div><div class="sub">${pct(muj,tot)}</div></div>
+    <div class="kpi"><div class="ico">🏘️</div><div class="val">${fmt(desf)}</div><div class="lbl">Act. zona desf.</div><div class="sub">${pct(desf,d.length)}</div></div>
+    <div class="kpi"><div class="ico">🌍</div><div class="val">${fmt(noDesf)}</div><div class="lbl">Act. zona no desf.</div><div class="sub">${pct(noDesf,d.length)}</div></div>`;
+
+  setTimeout(()=>{
+    makeChart('ch-sexo',{type:'doughnut',data:{labels:['Hombres','Mujeres'],datasets:[{data:[hom,muj],backgroundColor:[C.PAL[0],C.PAL[4]],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+    const pob=contarPor(d,C.f.poblacion,C.poblacion).slice(0,10);
+    hbarChart('ch-pob',pob);
+
+    makeChart('ch-zona',{type:'doughnut',data:{labels:['Desfavorecida','No desfavorecida'],datasets:[{data:[desf,noDesf],backgroundColor:[C.PAL[4],C.PAL[2]],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+    const lugar=contarPor(d,C.f.lugar,C.lugar).slice(0,10);
+    hbarChart('ch-lugar',lugar);
+
+    const hor=contarPor(d,C.f.horario,C.horario);
+    makeChart('ch-horario',{type:'pie',data:{labels:hor.map(x=>x.k),datasets:[{data:hor.map(x=>x.v),backgroundColor:C.PAL,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+  },0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TERRITORIAL
+// ═══════════════════════════════════════════════════════════════════
+function renderTerritorial(){
+  const d=S.filtrados;
+  const g=d.filter(r=>String(r[C.f.distrito])==='0');
+  const m=d.filter(r=>String(r[C.f.distrito])==='1');
+
+  const rankUA={};
+  d.forEach(r=>{const u=unidadNombreCompleto(r);if(!rankUA[u])rankUA[u]={act:0,part:0};rankUA[u].act++;rankUA[u].part+=n(r[C.f.participantes]);});
+  const ruA=Object.entries(rankUA).map(([k,v])=>({k,v:v.act})).sort((a,b)=>b.v-a.v).slice(0,15);
+  const ruP=Object.entries(rankUA).map(([k,v])=>({k,v:v.part})).sort((a,b)=>b.v-a.v).slice(0,15);
+
+  document.getElementById('rank-unid-act').innerHTML=rankHTML(ruA,colPal);
+  document.getElementById('rank-unid-part').innerHTML=rankHTML(ruP,colPal);
+
+  setTimeout(()=>{
+    makeChart('ch-distritos',{type:'bar',data:{labels:['Distrito Granada','Distrito Metropolitano'],datasets:[{label:'Actividades',data:[g.length,m.length],backgroundColor:[C.PAL[0],C.PAL[1]],borderRadius:6},{label:'Participantes',data:[g.reduce((s,r)=>s+n(r[C.f.participantes]),0),m.reduce((s,r)=>s+n(r[C.f.participantes]),0)],backgroundColor:[C.PAL_L[0],C.PAL_L[1]],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}});
+
+    const gPart=g.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+    const mPart=m.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+    makeChart('ch-dist-part',{type:'doughnut',data:{labels:['Granada','Metropolitano'],datasets:[{data:[gPart,mPart],backgroundColor:[C.PAL[0],C.PAL[1]],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+    // Unidades Granada
+    const uG={};g.forEach(r=>{const u=C.ugranada[String(r[C.f.u_granada])]||'Otras';uG[u]=(uG[u]||0)+1;});
+    const uGArr=Object.entries(uG).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v);
+    hbarChart('ch-ugranada',uGArr);
+
+    const uM={};m.forEach(r=>{const u=C.umetro[String(r[C.f.u_metro])]||'Otras';uM[u]=(uM[u]||0)+1;});
+    const uMArr=Object.entries(uM).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v);
+    hbarChart('ch-umetro',uMArr);
+  },0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROFESIONAL
+// ═══════════════════════════════════════════════════════════════════
+function renderProfesional(){
+  const d=S.filtrados;
+  const byProf={};
+  d.forEach(r=>{
+    const p=r[C.f.profesional]||'Sin nombre';
+    if(!byProf[p])byProf[p]={act:0,part:0,hrs:0};
+    byProf[p].act++;byProf[p].part+=n(r[C.f.participantes]);byProf[p].hrs+=nf(r[C.f.horas]);
+  });
+
+  const rA=Object.entries(byProf).map(([k,v])=>({k,v:v.act})).sort((a,b)=>b.v-a.v).slice(0,15);
+  const rP=Object.entries(byProf).map(([k,v])=>({k,v:v.part})).sort((a,b)=>b.v-a.v).slice(0,15);
+  const rH=Object.entries(byProf).map(([k,v])=>({k,v:Math.round(v.hrs)})).sort((a,b)=>b.v-a.v).slice(0,15);
+  const rEf=Object.entries(byProf).filter(([,v])=>v.hrs>0).map(([k,v])=>({k,v:parseFloat((v.part/v.hrs).toFixed(1))})).sort((a,b)=>b.v-a.v).slice(0,15);
+
+  document.getElementById('rank-prof-act').innerHTML=rankHTML(rA,colPal);
+  document.getElementById('rank-prof-part').innerHTML=rankHTML(rP,(i)=>C.PAL[1]);
+  document.getElementById('rank-prof-horas').innerHTML=rankHTML(rH,(i)=>C.PAL[2]);
+  document.getElementById('rank-prof-ef').innerHTML=rankHTML(rEf,(i)=>C.PAL[4]);
+
+  setTimeout(()=>{
+    const cat=contarPor(d,C.f.categoria,C.categoria).slice(0,10);
+    hbarChart('ch-categoria',cat);
+
+    const esp=contarPor(d.filter(r=>r[C.f.especialidad]),C.f.especialidad,C.especialidad);
+    hbarChart('ch-espec',esp);
+
+    const sx=contarPor(d,C.f.sexo_prof,{0:'Mujer',1:'Hombre'});
+    makeChart('ch-sexo-prof',{type:'doughnut',data:{labels:sx.map(x=>x.k),datasets:[{data:sx.map(x=>x.v),backgroundColor:[C.PAL[4],C.PAL[0]],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+  },0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TEMPORAL
+// ═══════════════════════════════════════════════════════════════════
+function renderTemporal(){
+  const d=S.filtrados;
+  const porMes={},porMesPart={};
+  d.forEach(r=>{
+    const f=parseFecha(r[C.f.fecha]);
+    if(!f)return;
+    const k=`${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,'0')}`;
+    porMes[k]=(porMes[k]||0)+1;
+    porMesPart[k]=(porMesPart[k]||0)+n(r[C.f.participantes]);
+  });
+  const meses=Object.keys(porMes).sort();
+
+  setTimeout(()=>{
+    makeChart('ch-mensual',{type:'line',data:{labels:meses,datasets:[
+      {label:'Actividades',data:meses.map(m=>porMes[m]),borderColor:C.PAL[0],backgroundColor:C.PAL_L[0],tension:.4,fill:true,yAxisID:'y1'},
+      {label:'Participantes',data:meses.map(m=>porMesPart[m]),borderColor:C.PAL[4],backgroundColor:C.PAL_L[4],tension:.4,fill:true,yAxisID:'y2'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y1:{beginAtZero:true,position:'left'},y2:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false}}}}});
+
+    // Trimestral
+    const tQ={Q1:0,Q2:0,Q3:0,Q4:0};
+    d.forEach(r=>{const f=parseFecha(r[C.f.fecha]);if(!f)return;const q='Q'+(Math.floor(f.getMonth()/3)+1);tQ[q]++;});
+    makeChart('ch-trimestre',{type:'bar',data:{labels:['T1','T2','T3','T4'],datasets:[{data:[tQ.Q1,tQ.Q2,tQ.Q3,tQ.Q4],backgroundColor:C.PAL,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+    // Por mes (1-12)
+    const mNum=Array(12).fill(0);
+    d.forEach(r=>{const f=parseFecha(r[C.f.fecha]);if(f)mNum[f.getMonth()]++;});
+    const mNom=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    makeChart('ch-mes',{type:'bar',data:{labels:mNom,datasets:[{data:mNum,backgroundColor:mNum.map((_,i)=>C.PAL[i%6]),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+    // Día de la semana
+    const dSem=Array(7).fill(0);
+    d.forEach(r=>{const f=parseFecha(r[C.f.fecha]);if(f)dSem[f.getDay()]++;});
+    const dNom=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    makeChart('ch-diasem',{type:'bar',data:{labels:dNom,datasets:[{data:dSem,backgroundColor:dSem.map((_,i)=>C.PAL[i%6]),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+    // Heatmap año × mes
+    renderHeatmap(d);
+  },0);
+}
+
+function renderHeatmap(d){
+  const byAnoMes={};
+  d.forEach(r=>{
+    const f=parseFecha(r[C.f.fecha]);
+    if(!f)return;
+    const a=f.getFullYear(),m=f.getMonth();
+    if(!byAnoMes[a])byAnoMes[a]=Array(12).fill(0);
+    byAnoMes[a][m]++;
+  });
+  const anos=Object.keys(byAnoMes).sort();
+  if(!anos.length){document.getElementById('heatmap-wrap').innerHTML='<p style="color:var(--sub);font-size:.8rem">Sin datos</p>';return;}
+  const max=Math.max(...anos.flatMap(a=>byAnoMes[a]));
+  const mNom=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let html='<div style="display:grid;gap:6px">';
+  // Header
+  html+=`<div style="display:grid;grid-template-columns:48px repeat(12,1fr);gap:4px">${'<div></div>'+mNom.map(m=>`<div style="text-align:center;font-size:.65rem;color:var(--sub);font-weight:700">${m}</div>`).join('')}</div>`;
+  anos.forEach(a=>{
+    html+=`<div style="display:grid;grid-template-columns:48px repeat(12,1fr);gap:4px">`;
+    html+=`<div style="font-size:.72rem;font-weight:700;color:var(--sub);display:flex;align-items:center">${a}</div>`;
+    byAnoMes[a].forEach((v,i)=>{
+      const op=max>0?(v/max*.7+.08).toFixed(2):'0';
+      const col=C.PAL[i%6];
+      html+=`<div class="hm-cell" style="background:${col};opacity:${op}" title="${mNom[i]} ${a}: ${v} act.">${v||''}</div>`;
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('heatmap-wrap').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROGRAMAS
+// ═══════════════════════════════════════════════════════════════════
+function renderProgramas(){
+  const d=S.filtrados;
+  const progs=contarPor(d,C.f.programa,C.prog).slice(0,15);
+  const temas=contarPor(d,C.f.tematica,C.tema).slice(0,15);
+  const tipos=contarPor(d,C.f.tipo,C.tipo).slice(0,12);
+
+  // Tabla estadísticas por programa
+  const pStat={};
+  d.forEach(r=>{
+    const k=C.prog[r[C.f.programa]]||'Otros';
+    if(!pStat[k])pStat[k]={act:0,part:0,hrs:0};
+    pStat[k].act++;pStat[k].part+=n(r[C.f.participantes]);pStat[k].hrs+=nf(r[C.f.horas]);
+  });
+  const pArr=Object.entries(pStat).sort((a,b)=>b[1].act-a[1].act).slice(0,15);
+
+  document.getElementById('tabla-programas').innerHTML=`
+    <table style="width:100%;font-size:.78rem">
+      <thead><tr><th>Programa</th><th>Activ.</th><th>Part.</th><th>Horas</th><th>Part/h</th></tr></thead>
+      <tbody>${pArr.map(([k,v])=>`<tr><td>${k}</td><td>${fmt(v.act)}</td><td>${fmt(v.part)}</td><td>${fmtD(v.hrs)}</td><td>${v.hrs>0?fmtD(v.part/v.hrs):'—'}</td></tr>`).join('')}</tbody>
+    </table>`;
+
+  setTimeout(()=>{hbarChart('ch-programas',progs);hbarChart('ch-tematicas',temas);hbarChart('ch-tipos',tipos);},0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BRECHAS / EQUIDAD
+// ═══════════════════════════════════════════════════════════════════
+function renderBrechas(){
+  const d=S.filtrados;
+  const desf=d.filter(r=>String(r[C.f.zona])==='1');
+  const noDesf=d.filter(r=>String(r[C.f.zona])!=='1');
+  const pDes=desf.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+  const pNoDes=noDesf.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+  const hDes=desf.reduce((s,r)=>s+nf(r[C.f.horas]),0);
+  const hNoDes=noDesf.reduce((s,r)=>s+nf(r[C.f.horas]),0);
+  const ef_des=hDes>0?fmtD(pDes/hDes):'—';
+  const ef_no=hNoDes>0?fmtD(pNoDes/hNoDes):'—';
+
+  document.getElementById('kpis-brechas').innerHTML=`
+    <div class="kpi"><div class="ico">🏘️</div><div class="val">${fmt(desf.length)}</div><div class="lbl">Act. zona desf.</div><div class="sub">${pct(desf.length,d.length)}</div></div>
+    <div class="kpi"><div class="ico">🌍</div><div class="val">${fmt(noDesf.length)}</div><div class="lbl">Act. zona no desf.</div><div class="sub">${pct(noDesf.length,d.length)}</div></div>
+    <div class="kpi"><div class="ico">⚡</div><div class="val">${ef_des}</div><div class="lbl">Part./hora (desf.)</div></div>
+    <div class="kpi"><div class="ico">📊</div><div class="val">${ef_no}</div><div class="lbl">Part./hora (no desf.)</div></div>`;
+
+  // Brecha por unidad
+  const uBr={};
+  d.forEach(r=>{
+    const u=unidadNombreCompleto(r);
+    if(!uBr[u])uBr[u]={tot:0,des:0};
+    uBr[u].tot++;
+    if(String(r[C.f.zona])==='1')uBr[u].des++;
+  });
+  const uBrArr=Object.entries(uBr).filter(([,v])=>v.tot>=3).map(([k,v])=>({k,pct:Math.round(v.des/v.tot*100),des:v.des,tot:v.tot})).sort((a,b)=>b.pct-a.pct);
+  document.getElementById('brecha-unidades').innerHTML=`
+    <table style="width:100%;font-size:.78rem">
+      <thead><tr><th>Unidad</th><th>Total act.</th><th>Zona desf.</th><th>% desf.</th><th></th></tr></thead>
+      <tbody>${uBrArr.map(x=>`<tr><td>${x.k}</td><td>${x.tot}</td><td>${x.des}</td><td>${x.pct}%</td><td><div class="prog-bar" style="width:80px;display:inline-block"><div class="prog-fill" style="width:${x.pct}%"></div></div></td></tr>`).join('')}</tbody>
+    </table>`;
+
+  // Programas en zonas desfavorecidas
+  const progDesf=contarPor(desf,C.f.programa,C.prog).slice(0,10);
+
+  setTimeout(()=>{
+    makeChart('ch-brechas-act',{type:'bar',data:{labels:['Zona desfavorecida','Zona no desfavorecida'],datasets:[{data:[desf.length,noDesf.length],backgroundColor:[C.PAL[4],C.PAL[2]],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+    makeChart('ch-brechas-part',{type:'bar',data:{labels:['Zona desfavorecida','Zona no desfavorecida'],datasets:[{data:[pDes,pNoDes],backgroundColor:[C.PAL_L[4],C.PAL_L[2]],borderColor:[C.PAL[4],C.PAL[2]],borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+    hbarChart('ch-prog-desf',progDesf);
+  },0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EFICIENCIA
+// ═══════════════════════════════════════════════════════════════════
+function renderEficiencia(){
+  const d=S.filtrados;
+  const act=d.length;
+  const part=d.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+  const hrs=d.reduce((s,r)=>s+nf(r[C.f.horas]),0);
+  const ses=d.reduce((s,r)=>s+n(r[C.f.sesiones]),0);
+  const ph=hrs>0?fmtD(part/hrs):'—';
+  const pa=act>0?fmtD(part/act):'—';
+  const ha=act>0?fmtD(hrs/act):'—';
+  const spa=ses>0?fmtD(part/ses):'—';
+  const hps=ses>0?fmtD(hrs/ses):'—';
+  const div=calcDiversidad(d);
+
+  document.getElementById('kpis-ef').innerHTML=`
+    <div class="kpi"><div class="ico">⚡</div><div class="val">${ph}</div><div class="lbl">Participantes/hora</div></div>
+    <div class="kpi"><div class="ico">👥</div><div class="val">${pa}</div><div class="lbl">Participantes/actividad</div></div>
+    <div class="kpi"><div class="ico">⏱️</div><div class="val">${ha}</div><div class="lbl">Horas/actividad</div></div>
+    <div class="kpi"><div class="ico">🎯</div><div class="val">${spa}</div><div class="lbl">Participantes/sesión</div></div>
+    <div class="kpi"><div class="ico">📅</div><div class="val">${hps}</div><div class="lbl">Horas/sesión</div></div>
+    <div class="kpi"><div class="ico">🌈</div><div class="val">${fmtD(div)}</div><div class="lbl">Índice diversidad temática</div><div class="sub">0–1 (mayor = más diverso)</div></div>`;
+
+  // Por tipo de actividad
+  const byTipo={};
+  d.forEach(r=>{
+    const k=C.tipo[r[C.f.tipo]]||'Otros';
+    if(!byTipo[k])byTipo[k]={act:0,part:0,hrs:0};
+    byTipo[k].act++;byTipo[k].part+=n(r[C.f.participantes]);byTipo[k].hrs+=nf(r[C.f.horas]);
+  });
+  const tipoEf=Object.entries(byTipo).filter(([,v])=>v.hrs>0).map(([k,v])=>({k,v:parseFloat((v.part/v.hrs).toFixed(1))})).sort((a,b)=>b.v-a.v).slice(0,10);
+  const tipoHa=Object.entries(byTipo).filter(([,v])=>v.act>0).map(([k,v])=>({k,v:parseFloat((v.hrs/v.act).toFixed(1))})).sort((a,b)=>b.v-a.v).slice(0,10);
+  const tipoSes=Object.entries(byTipo).filter(([,v])=>v.act>0).map(([k,v])=>({k,v:parseFloat((v.part/v.act).toFixed(0))})).sort((a,b)=>b.v-a.v).slice(0,10);
+
+  // Por unidad — eficiencia
+  const byUnid={};
+  d.forEach(r=>{const u=unidadNombreCompleto(r);if(!byUnid[u])byUnid[u]={act:0,part:0,hrs:0};byUnid[u].act++;byUnid[u].part+=n(r[C.f.participantes]);byUnid[u].hrs+=nf(r[C.f.horas]);});
+  const uEf=Object.entries(byUnid).filter(([,v])=>v.hrs>0).map(([k,v])=>({k,v:parseFloat((v.part/v.hrs).toFixed(1))})).sort((a,b)=>b.v-a.v).slice(0,15);
+
+  // Por programa — horas totales
+  const byProgH=Object.entries(C.prog).map(k=>{const tot=d.filter(r=>String(r[C.f.programa])===k[0]).reduce((s,r)=>s+nf(r[C.f.horas]),0);return{k:k[1],v:Math.round(tot)};}).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,10);
+
+  document.getElementById('rank-ef-unid').innerHTML=rankHTML(uEf,colPal);
+  document.getElementById('rank-ef-prog').innerHTML=rankHTML(byProgH,(i)=>C.PAL[i%6]);
+
+  setTimeout(()=>{hbarChart('ch-ef-tipo',tipoEf);hbarChart('ch-ef-sesion',tipoSes);hbarChart('ch-ef-horas',tipoHa);},0);
+}
+
+function calcDiversidad(d){
+  if(!d.length)return 0;
+  const c={};d.forEach(r=>{const k=r[C.f.tematica];c[k]=(c[k]||0)+1;});
+  const vals=Object.values(c);const tot=vals.reduce((a,b)=>a+b,0);
+  const H=-vals.reduce((s,v)=>{const p=v/tot;return s+p*Math.log(p);},0);
+  const Hmax=Math.log(Object.keys(c).length||1);
+  return Hmax>0?H/Hmax:0;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ALERTAS
+// ═══════════════════════════════════════════════════════════════════
+function renderAlertas(){
+  const d=S.filtrados;
+  const alertas=[];
+
+  if(!d.length){document.getElementById('alertas-list').innerHTML='<p style="color:var(--sub);text-align:center;padding:40px">Sin datos cargados</p>';return;}
+
+  const act=d.length;
+  const part=d.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+  const hrs=d.reduce((s,r)=>s+nf(r[C.f.horas]),0);
+  const desf=d.filter(r=>String(r[C.f.zona])==='1').length;
+  const pctDesf=desf/act;
+
+  // Actividades sin participantes
+  const sinPart=d.filter(r=>n(r[C.f.participantes])===0).length;
+  if(sinPart>0) alertas.push({nivel:'media',ico:'⚠️',titulo:`${fmt(sinPart)} actividades sin participantes registrados`,desc:`Representa el ${pct(sinPart,act)} del total. Revisar registros.`});
+
+  // Actividades sin horas
+  const sinHrs=d.filter(r=>nf(r[C.f.horas])===0).length;
+  if(sinHrs>0) alertas.push({nivel:'baja',ico:'ℹ️',titulo:`${fmt(sinHrs)} actividades sin horas registradas`,desc:`${pct(sinHrs,act)} sin duración. Completar el campo de horas.`});
+
+  // Cobertura zona desfavorecida
+  if(pctDesf<0.15) alertas.push({nivel:'alta',ico:'🔴',titulo:`Baja cobertura en zonas desfavorecidas: ${(pctDesf*100).toFixed(1)}%`,desc:'Se recomienda al menos un 15-20% de actividades en zonas de especial necesidad.'});
+  else if(pctDesf>=0.25) alertas.push({nivel:'baja',ico:'✅',titulo:`Buena cobertura en zonas desfavorecidas: ${(pctDesf*100).toFixed(1)}%`,desc:'El porcentaje de actividades en zonas desfavorecidas supera el umbral recomendado.'});
+
+  // Concentración de actividades en pocas unidades
+  const uCount={};d.forEach(r=>{const u=unidadNombreCompleto(r);uCount[u]=(uCount[u]||0)+1;});
+  const nUnids=Object.keys(uCount).length;
+  const top3=Object.values(uCount).sort((a,b)=>b-a).slice(0,3).reduce((s,v)=>s+v,0);
+  if(top3/act>0.6&&nUnids>5) alertas.push({nivel:'media',ico:'📍',titulo:`Alta concentración: top 3 unidades acumulan ${pct(top3,act)} de actividades`,desc:'La distribución territorial puede no ser equitativa. Revisar cobertura.'});
+
+  // Diversidad temática
+  const div=calcDiversidad(d);
+  if(div<0.5) alertas.push({nivel:'media',ico:'📚',titulo:`Baja diversidad temática: índice ${fmtD(div)} (escala 0-1)`,desc:'Las actividades están concentradas en pocas temáticas. Valorar ampliar cobertura.'});
+  else alertas.push({nivel:'baja',ico:'🌈',titulo:`Buena diversidad temática: índice ${fmtD(div)}`,desc:'Las actividades cubren un amplio espectro de temáticas de salud.'});
+
+  // Participantes medio
+  if(act>0&&part/act<8) alertas.push({nivel:'media',ico:'👥',titulo:`Media de participantes baja: ${fmtD(part/act)} por actividad`,desc:'Valorar estrategias para aumentar alcance de las actividades grupales.'});
+
+  // Sin actividades en algún trimestre del último año
+  const anyos=[...new Set(d.map(r=>{const f=parseFecha(r[C.f.fecha]);return f?f.getFullYear():null;}).filter(Boolean))];
+  if(anyos.length){
+    const ult=Math.max(...anyos);
+    const dUlt=d.filter(r=>{const f=parseFecha(r[C.f.fecha]);return f&&f.getFullYear()===ult;});
+    const qUlt=new Set(dUlt.map(r=>{const f=parseFecha(r[C.f.fecha]);return f?Math.floor(f.getMonth()/3)+1:null;}).filter(Boolean));
+    [1,2,3,4].forEach(q=>{if(!qUlt.has(q)) alertas.push({nivel:'media',ico:'📅',titulo:`Sin actividades en T${q} de ${ult}`,desc:`No hay registros en el trimestre ${q} del año ${ult}.`});});
+  }
+
+  if(!alertas.length) alertas.push({nivel:'baja',ico:'✅',titulo:'No se detectan alertas relevantes',desc:'El conjunto de datos cumple los indicadores de seguimiento básicos.'});
+
+  document.getElementById('alertas-list').innerHTML=alertas.map(a=>`
+    <div class="alerta ${a.nivel}">
+      <div class="alerta-ico">${a.ico}</div>
+      <div class="alerta-body"><strong>${a.titulo}</strong><span>${a.desc}</span></div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORTACIÓN
+// ═══════════════════════════════════════════════════════════════════
+function expCSV(){
+  if(!S.filtrados.length){alert('Sin datos para exportar.');return;}
+  const csv=Papa.unparse(S.filtrados);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`RAPS_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+function expXLSX(){
+  if(!S.filtrados.length){alert('Sin datos para exportar.');return;}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(S.filtrados);
+  XLSX.utils.book_append_sheet(wb,ws,'Datos');
+  XLSX.writeFile(wb,`RAPS_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+function expPDF(){
+  const d=S.filtrados;
+  if(!d.length){alert('Sin datos para exportar.');return;}
+  const act=d.length,part=d.reduce((s,r)=>s+n(r[C.f.participantes]),0);
+  const hrs=d.reduce((s,r)=>s+nf(r[C.f.horas]),0),ses=d.reduce((s,r)=>s+n(r[C.f.sesiones]),0);
+  const hom=d.reduce((s,r)=>s+n(r[C.f.hombres]),0),muj=d.reduce((s,r)=>s+n(r[C.f.mujeres]),0);
+  const profs=new Set(d.map(r=>r[C.f.profesional]).filter(Boolean)).size;
+  const desf=d.filter(r=>String(r[C.f.zona])==='1').length;
+  const fecha=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>body{font-family:Arial,sans-serif;color:#334155;padding:32px}
+  h1{font-size:20px;color:#0074c8;margin-bottom:4px}
+  .sub{font-size:12px;color:#64748b;margin-bottom:24px}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px}
+  th{background:#f1f5f9;padding:7px 10px;text-align:left;color:#1b365d}
+  td{padding:6px 10px;border-bottom:1px solid #e2e8f0}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .kpi{border:1px solid #e2e8f0;border-left:4px solid #0074c8;border-radius:6px;padding:10px 12px}
+  .kpi .v{font-size:18px;font-weight:bold;color:#1b365d}
+  .kpi .l{font-size:10px;color:#64748b;text-transform:uppercase}</style></head>
+  <body>
+  <h1>RAPS · DGRAMET — Informe de Actuaciones</h1>
+  <div class="sub">Generado el ${fecha} · ${act} registros</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="v">${fmt(act)}</div><div class="l">Actividades</div></div>
+    <div class="kpi"><div class="v">${fmt(part)}</div><div class="l">Participantes</div></div>
+    <div class="kpi"><div class="v">${fmtD(hrs)}</div><div class="l">Horas totales</div></div>
+    <div class="kpi"><div class="v">${fmt(ses)}</div><div class="l">Sesiones</div></div>
+    <div class="kpi"><div class="v">${fmt(hom)}</div><div class="l">Hombres</div></div>
+    <div class="kpi"><div class="v">${fmt(muj)}</div><div class="l">Mujeres</div></div>
+    <div class="kpi"><div class="v">${fmt(profs)}</div><div class="l">Profesionales</div></div>
+    <div class="kpi"><div class="v">${fmt(desf)}</div><div class="l">Act. zona desf.</div></div>
+  </div>
+  <h2 style="font-size:14px;color:#0074c8;margin-bottom:8px">Top programas</h2>
+  <table><thead><tr><th>Programa</th><th>Actividades</th><th>Participantes</th></tr></thead>
+  <tbody>${contarPor(d,C.f.programa,C.prog).slice(0,10).map(x=>{const pp=d.filter(r=>C.prog[r[C.f.programa]]===x.k).reduce((s,r)=>s+n(r[C.f.participantes]),0);return`<tr><td>${x.k}</td><td>${fmt(x.v)}</td><td>${fmt(pp)}</td></tr>`;}).join('')}</tbody></table>
+  <h2 style="font-size:14px;color:#0074c8;margin-bottom:8px">Top temáticas</h2>
+  <table><thead><tr><th>Temática</th><th>Actividades</th></tr></thead>
+  <tbody>${contarPor(d,C.f.tematica,C.tema).slice(0,10).map(x=>`<tr><td>${x.k}</td><td>${fmt(x.v)}</td></tr>`).join('')}</tbody></table>
+  </body></html>`;
+
+  const w=window.open('','_blank');
+  w.document.write(html);w.document.close();
+  setTimeout(()=>w.print(),300);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DATOS DE PRUEBA (genera 200 registros sintéticos)
+// ═══════════════════════════════════════════════════════════════════
+function generarDatosPrueba(){
+  const profs=['García López, Ana','Martínez Ruiz, Carlos','López Jiménez, María','Sánchez Fernández, José','Romero Torres, Laura','Navarro Moreno, Pedro','Jiménez Castro, Elena','Muñoz Herrera, Antonio'];
+  const actividades=['Taller alimentación saludable','Educación diabetológica','Charla tabaco','Sesión GRAFA','Intervención maternoinfantil','Mapeo activos','Prevención alcohol','Bienestar emocional','Actividad física mayores','PSIA sesión grupal'];
+  const rows=[];
+  for(let i=1;i<=300;i++){
+    const dist=Math.random()<.5?0:1;
+    const u=dist===0?Math.floor(Math.random()*15):Math.floor(Math.random()*21);
+    const prof=profs[Math.floor(Math.random()*profs.length)];
+    const d=new Date(2024,Math.floor(Math.random()*12),1+Math.floor(Math.random()*28));
+    const tipo=Math.floor(Math.random()*25);
+    const part=5+Math.floor(Math.random()*60);
+    const hom=Math.floor(part*(.3+Math.random()*.4));
+    const muj=part-hom;
+    const horas=(1+Math.random()*3).toFixed(1);
+    const ses=1+Math.floor(Math.random()*4);
+    rows.push({
+      record_id:i,fecha_del_registro:`${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`,
+      apellidos_y_nombre:prof,sexo:Math.random()<.7?0:1,
+      categor_a_profesional:1+Math.floor(Math.random()*15),
+      especialidad_de_enfermer_a:Math.floor(Math.random()*9)||'',
+      distrito0:dist,unidad_asistencial:dist===0?u:'',unidad_asistencial_2:dist===1?u:'',
+      nombre_de_la_actividad:actividades[Math.floor(Math.random()*actividades.length)],
+      tipo_de_actividad:tipo,
+      fecha_de_inicio:`${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`,
+      fecha_de_fin:`${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`,
+      n_mero_de_sesiones:ses,n_mero_de_horas:horas,horario:Math.floor(Math.random()*3),
+      localidad_donde_se_realiza:'Granada',es_una_zona_desfavorecidas:Math.random()<.25?1:0,
+      lugar_de_realizaci_n_de_la:Math.floor(Math.random()*15),
+      poblaci_n_destinataria:Math.floor(Math.random()*16),
+      asist_total:part,asist_hombres:hom,asist_mujeres:muj,
+      qu_tem_tica_s_aborda_la_ac:1+Math.floor(Math.random()*30),
+      en_qu_estrategia_plan_inte:1+Math.floor(Math.random()*25),
+      observaciones_sobre_la_act:''
+    });
+  }
+  S.raw=rows;postCarga();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOADING
+// ═══════════════════════════════════════════════════════════════════
+function setLoading(v){document.getElementById('loading').style.display=v?'flex':'none';}
+
+// ═══════════════════════════════════════════════════════════════════
+// EVENTOS
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  // Nav tabs
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.addEventListener('click',function(){
+      document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+      const id='p-'+this.dataset.tab;
+      const panel=document.getElementById(id);
+      if(panel)panel.classList.add('active');
+      if(S.raw.length)renderPanel(this.dataset.tab);
+    });
+  });
+
+  // CSV input
+  document.getElementById('file-csv').addEventListener('change',function(e){
+    if(e.target.files[0])cargarCSV(e.target.files[0]);
+    this.value='';
+  });
+
+  // Drop zone
+  const dz=document.getElementById('drop-zone');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--azul)';});
+  dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';if(e.dataTransfer.files[0])cargarCSV(e.dataTransfer.files[0]);});
+
+  // Nivel
+  document.getElementById('sel-nivel').addEventListener('change',function(){
+    S.nivel=this.value;
+    document.getElementById('grp-unidad').style.display=S.nivel==='unidad'?'flex':'none';
+    document.getElementById('grp-prof').style.display=S.nivel==='profesional'?'flex':'none';
+    if(S.nivel!=='unidad')S.unidad='';
+    if(S.nivel!=='profesional')S.prof='';
+    aplicarFiltros();
+  });
+  document.getElementById('sel-unidad').addEventListener('change',function(){S.unidad=this.value;aplicarFiltros();});
+  document.getElementById('sel-prof').addEventListener('change',function(){S.prof=this.value;aplicarFiltros();});
+
+  // Filtros
+  document.getElementById('btn-filtrar').addEventListener('click',aplicarFiltros);
+  document.getElementById('btn-limpiar-f').addEventListener('click',()=>{
+    ['f-desde','f-hasta','f-tipo','f-tema','f-prog','f-zona'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    aplicarFiltros();
+  });
+
+  // Búsqueda tabla
+  document.getElementById('busqueda-tabla').addEventListener('input',()=>{S.pag=1;aplicarFiltros();});
+
+  // Paginación
+  document.getElementById('btn-prev').addEventListener('click',()=>{if(S.pag>1){S.pag--;renderTabla();}});
+  document.getElementById('btn-next').addEventListener('click',()=>{const t=Math.ceil(S.filtrados.length/S.PPP)||1;if(S.pag<t){S.pag++;renderTabla();}});
+
+  // Exportación
+  document.getElementById('btn-exp-csv').addEventListener('click',expCSV);
+  document.getElementById('btn-exp-xlsx').addEventListener('click',expXLSX);
+  document.getElementById('btn-exp-pdf').addEventListener('click',expPDF);
+
+  // Limpiar
+  document.getElementById('btn-limpiar').addEventListener('click',()=>{
+    if(!confirm('¿Limpiar todos los datos?'))return;
+    S.raw=[];S.filtrados=[];S.nivel='global';S.unidad='';S.prof='';S.pag=1;
+    document.getElementById('controles').style.display='none';
+    document.getElementById('bienvenida').style.display='block';
+    Object.values(S.charts).forEach(c=>c.destroy());S.charts={};
+    document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+    document.querySelectorAll('.panel').forEach((p,i)=>{p.classList.toggle('active',i===0);});
+    document.getElementById('kpis').innerHTML='';
+    document.getElementById('charts-row1').innerHTML='';
+    document.getElementById('charts-row2').innerHTML='';
+    document.getElementById('rankings-wrap').innerHTML='';
+  });
+
+  // Demo
+  document.getElementById('btn-demo').addEventListener('click',generarDatosPrueba);
+});
+</script>
 </body>
 </html>
