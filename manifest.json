@@ -1,0 +1,11 @@
+{
+  "name": "RAPS · DGRAMET",
+  "short_name": "RAPS",
+  "description": "Registro de Actuaciones de Promoción de la Salud — DS Granada-Metropolitano",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#0074c8",
+  "lang": "es",
+  "icons": []
+}

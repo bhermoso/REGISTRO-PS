@@ -1,0 +1,36 @@
+/* Variables — Sistema visual COMPÁS */
+:root {
+  /* Escala cromática (orden visual COMPÁS) */
+  --azul:     #4a90e2;
+  --turquesa: #00c9a7;
+  --verde:    #43b89c;
+  --lima:     #b8f04a;
+  --ambar:    #ffc340;
+  --coral:    #ff6b6b;
+  --violeta:  #7c5cbf;
+
+  /* Gradiente decorativo (franja/acento estructural) */
+  --grad:   linear-gradient(90deg,#4a90e2 0%,#00c9a7 20%,#b8f04a 40%,#ffc340 60%,#ff6b6b 80%,#7c5cbf 100%);
+  --grad-v: linear-gradient(180deg,#4a90e2 0%,#00c9a7 33%,#ffc340 66%,#ff6b6b 100%);
+
+  /* Fondos */
+  --fondo:  #f5f3ee;
+  --fondo2: #faf9f5;
+  --fondo3: #ede9e0;
+  --white:  #ffffff;
+
+  /* Tipografía */
+  --titulo: #1a1a2e;
+  --texto:  #3d3d5c;
+  --sub:    #7b7b9a;
+
+  /* Estructura */
+  --borde:    #e5e2d9;
+  --sombra:   0 1px 3px rgba(26,26,46,.05);
+  --sombra-h: 0 8px 20px rgba(26,26,46,.08);
+  --r: 10px;
+
+  /* Alias semánticos (compatibilidad interna) */
+  --naranja: var(--coral);
+  --rojo:    var(--coral);
+}

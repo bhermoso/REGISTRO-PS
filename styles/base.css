@@ -1,0 +1,24 @@
+/* Base y layout */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--fondo);color:var(--texto);font-size:14px;line-height:1.5}
+/* ── Loading ────────────────────────────────────────────────────────────── */
+#loading{display:none;position:fixed;inset:0;background:rgba(245,243,238,.88);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.spin{width:40px;height:40px;border:3px solid var(--borde);border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ── Header ─────────────────────────────────────────────────────────────── */
+header{background:var(--white);border-bottom:1px solid var(--borde);position:sticky;top:0;z-index:100}
+header::before{content:'';display:block;height:4px;background:var(--grad)}
+.hdr{max-width:1400px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px}
+.brand h1{font-size:1.1rem;font-weight:750;color:var(--titulo);letter-spacing:.06em;text-transform:uppercase}
+.brand p{font-size:.75rem;color:var(--sub)}
+.hdr-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+/* ── Nav tabs ───────────────────────────────────────────────────────────── */
+nav{background:var(--white);border-bottom:1px solid var(--borde);overflow-x:auto}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;padding:0 20px}
+.nav-tab{padding:10px 16px;font-size:.82rem;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.nav-tab:hover{color:var(--titulo)}
+.nav-tab.active{color:var(--azul);border-bottom-color:var(--azul)}
+/* ── Main ───────────────────────────────────────────────────────────────── */
+main{max-width:1400px;margin:0 auto;padding:20px}
+.panel{display:none}
+.panel.active{display:block}

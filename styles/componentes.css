@@ -1,0 +1,82 @@
+/* Componentes reutilizables */
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1px solid var(--borde);background:var(--white);color:var(--texto);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn:hover{box-shadow:var(--sombra-h);transform:translateY(-1px)}
+.btn-p{color:var(--azul);border-color:rgba(74,144,226,.3);border-left:3px solid var(--azul)}
+.btn-s{color:var(--sub)}
+.btn-g{color:#5a8200;border-color:rgba(184,240,74,.4);border-left:3px solid var(--lima)}
+.btn-r{color:#a04040;border-color:rgba(255,107,107,.3);border-left:3px solid var(--coral)}
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card{background:var(--white);border:1px solid var(--borde);border-radius:var(--r);padding:18px;box-shadow:var(--sombra)}
+.card-title{font-size:.85rem;font-weight:700;color:var(--titulo);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+/* ── Grid helpers ───────────────────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.g2r{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+@media(max-width:900px){.g4,.g6{grid-template-columns:repeat(2,1fr)}.g2,.g3,.g2r{grid-template-columns:1fr}}
+/* ── KPI cards ──────────────────────────────────────────────────────────── */
+.kpi{background:var(--white);border:1px solid var(--borde);border-radius:var(--r);padding:16px 18px;border-left:4px solid var(--azul);box-shadow:var(--sombra);display:flex;flex-direction:column;gap:4px}
+.kpi .ico{font-size:1.4rem}
+.kpi .val{font-size:1.6rem;font-weight:750;color:var(--titulo);line-height:1}
+.kpi .lbl{font-size:.75rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.kpi .sub{font-size:.8rem;color:var(--sub)}
+.kpi:nth-child(7n+1){border-left-color:var(--azul)}
+.kpi:nth-child(7n+2){border-left-color:var(--turquesa)}
+.kpi:nth-child(7n+3){border-left-color:var(--verde)}
+.kpi:nth-child(7n+4){border-left-color:var(--lima)}
+.kpi:nth-child(7n+5){border-left-color:var(--ambar)}
+.kpi:nth-child(7n+6){border-left-color:var(--coral)}
+.kpi:nth-child(7n+7){border-left-color:var(--violeta)}
+/* ── Chart cards ────────────────────────────────────────────────────────── */
+.chart-card{background:var(--white);border:1px solid var(--borde);border-radius:var(--r);padding:18px;box-shadow:var(--sombra);border-left:4px solid var(--azul)}
+.chart-card:nth-child(7n+1){border-left-color:var(--azul)}
+.chart-card:nth-child(7n+2){border-left-color:var(--turquesa)}
+.chart-card:nth-child(7n+3){border-left-color:var(--verde)}
+.chart-card:nth-child(7n+4){border-left-color:var(--lima)}
+.chart-card:nth-child(7n+5){border-left-color:var(--ambar)}
+.chart-card:nth-child(7n+6){border-left-color:var(--coral)}
+.chart-card:nth-child(7n+7){border-left-color:var(--violeta)}
+.chart-card h3{font-size:.82rem;font-weight:700;color:var(--titulo);margin-bottom:10px}
+.chart-wrap{position:relative;height:220px}
+/* ── Filtros ────────────────────────────────────────────────────────────── */
+.filtros-bar{background:var(--white);border:1px solid var(--borde);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;border-top:3px solid var(--azul);box-shadow:var(--sombra)}
+.filtros-bar h2{font-size:.82rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.filtros-grid{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px;min-width:140px}
+.fg label{font-size:.72rem;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.fg input,.fg select{padding:6px 10px;border:1px solid var(--borde);border-radius:6px;font-size:.8rem;color:var(--texto);background:var(--white);outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--azul);box-shadow:0 0 0 2px rgba(74,144,226,.12)}
+/* ── Tabla ──────────────────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--borde)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead{background:var(--fondo3);position:sticky;top:0}
+th{padding:9px 12px;text-align:left;font-weight:700;color:var(--titulo);border-bottom:2px solid var(--borde);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--borde);color:var(--texto)}
+tbody tr:hover{background:var(--fondo2)}
+.pag{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.78rem;color:var(--sub)}
+.pag-info{flex:1}
+/* ── Ranking bars ───────────────────────────────────────────────────────── */
+.rank-item{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--fondo3)}
+.rank-item:last-child{border-bottom:none}
+.rank-pos{font-size:.75rem;font-weight:700;color:var(--sub);text-align:center}
+.rank-bar-wrap{display:flex;flex-direction:column;gap:3px}
+.rank-name{font-size:.78rem;color:var(--texto);font-weight:600}
+.rank-bar{height:6px;border-radius:3px;background:var(--fondo3);overflow:hidden}
+.rank-fill{height:100%;border-radius:3px;transition:width .4s}
+.rank-val{font-size:.78rem;font-weight:700;color:var(--titulo);white-space:nowrap}
+/* ── Badge ──────────────────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;border:1px solid transparent}
+.badge-a{background:rgba(74,144,226,.1);color:#2a60b0;border-color:rgba(74,144,226,.25)}
+.badge-t{background:rgba(184,240,74,.12);color:#5a8200;border-color:rgba(184,240,74,.35)}
+.badge-d{background:rgba(255,195,64,.12);color:#8a5a00;border-color:rgba(255,195,64,.3)}
+.badge-r{background:rgba(255,107,107,.1);color:#a04040;border-color:rgba(255,107,107,.25)}
+/* ── Pantalla bienvenida ─────────────────────────────────────────────────── */
+#bienvenida{text-align:center;padding:60px 20px}
+#bienvenida .grad-title{font-size:2rem;font-weight:750;color:var(--titulo);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+#bienvenida p{color:var(--sub);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
+.drop-zone{border:2px dashed var(--borde);border-radius:var(--r);padding:40px;max-width:480px;margin:0 auto;cursor:pointer;transition:all .2s}
+.drop-zone:hover{border-color:var(--azul);background:rgba(74,144,226,.03)}
+.drop-zone .ico{font-size:2.5rem;margin-bottom:10px}
+.drop-zone p{color:var(--sub);font-size:.9rem}

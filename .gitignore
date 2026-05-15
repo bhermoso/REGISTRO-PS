@@ -1,11 +1,19 @@
-# OS
+# Ficheros de sistema
 .DS_Store
 Thumbs.db
+desktop.ini
+*.log
 
-# Editor
-.vscode/
-*.swp
+# Scripts de desarrollo (no forman parte del despliegue)
+_split.py
+_monolito.html
 
-# Datos reales (nunca subir ficheros CSV con datos del SAS)
+# Datos reales — nunca al repositorio
 *.csv
-datos_*/
+!datos_prueba_*.csv
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
