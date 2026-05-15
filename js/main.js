@@ -6,6 +6,7 @@ import {actualizarPanelActivo, renderPanel} from './render.js';
 import {renderTabla} from './paneles/tabla.js';
 import {expCSV, expXLSX, expPDF} from './exportacion.js';
 import {generarDatosPrueba} from './generador.js';
+import {renderEvidencias} from './paneles/evidencias.js';
 
 document.addEventListener('DOMContentLoaded',()=>{
   // Nav tabs
@@ -17,7 +18,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       const id='p-'+this.dataset.tab;
       const panel=document.getElementById(id);
       if(panel)panel.classList.add('active');
-      if(S.raw.length)renderPanel(this.dataset.tab);
+      if(this.dataset.tab==='evidencias') renderEvidencias();
+      else if(S.raw.length) renderPanel(this.dataset.tab);
     });
   });
 

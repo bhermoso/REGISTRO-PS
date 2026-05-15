@@ -159,3 +159,21 @@ footer::before{content:'';display:block;height:5px;background:var(--grad)}
 @media(max-width:480px){
   #info-panel{width:100vw}
 }
+
+/* ── Panel Evidencias ────────────────────────────────────────────────────── */
+.ev-toolbar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ev-upload-btn{cursor:pointer}
+.ev-drop{border:2px dashed var(--borde);border-radius:var(--r);padding:32px;text-align:center;
+  transition:border-color .2s,background .2s;margin-bottom:16px;cursor:default}
+.ev-drop-over{border-color:var(--azul);background:rgba(74,144,226,.04)}
+.ev-drop-inner{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--sub);font-size:.85rem}
+.ev-progress{margin-bottom:16px}
+.ev-progress-bar{height:6px;background:var(--fondo3);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.ev-prog-fill{height:100%;background:var(--azul);border-radius:3px;transition:width .3s;width:0}
+.ev-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);
+  border:1px solid var(--borde);border-radius:8px;margin-bottom:8px;flex-wrap:wrap}
+.ev-ico{font-size:1.5rem;flex-shrink:0}
+.ev-meta{flex:1;min-width:140px}
+.ev-meta strong{display:block;font-size:.82rem;color:var(--titulo);font-weight:700}
+.ev-meta span{font-size:.72rem;color:var(--sub)}
+.ev-actions{display:flex;gap:6px;flex-wrap:wrap}
