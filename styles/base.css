@@ -9,7 +9,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--fondo);color:v
 header{background:var(--white);border-bottom:1px solid var(--borde);position:sticky;top:0;z-index:100}
 header::before{content:'';display:block;height:4px;background:var(--grad)}
 .hdr{max-width:1400px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px}
-.brand h1{font-size:1.1rem;font-weight:750;color:var(--titulo);letter-spacing:.06em;text-transform:uppercase}
+.brand h1{font-size:1.1rem;font-weight:750;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.06em;text-transform:uppercase}
 .brand p{font-size:.75rem;color:var(--sub)}
 .hdr-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 /* ── Nav tabs ───────────────────────────────────────────────────────────── */

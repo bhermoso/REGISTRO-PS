@@ -1,17 +1,17 @@
-/* Variables — Sistema visual COMPÁS */
+/* Variables — Sistema visual RAPS */
 :root {
-  /* Escala cromática (orden visual COMPÁS) */
-  --azul:     #4a90e2;
-  --turquesa: #00c9a7;
+  /* Escala cromática (orden visual RAPS) */
+  --azul:     #0074c8;
+  --turquesa: #00acd9;
   --verde:    #43b89c;
-  --lima:     #b8f04a;
-  --ambar:    #ffc340;
-  --coral:    #ff6b6b;
-  --violeta:  #7c5cbf;
+  --lima:     #94d40b;
+  --ambar:    #ffb61b;
+  --coral:    #ff6600;
+  --violeta:  #dc143c;
 
   /* Gradiente decorativo (franja/acento estructural) */
-  --grad:   linear-gradient(90deg,#4a90e2 0%,#00c9a7 20%,#b8f04a 40%,#ffc340 60%,#ff6b6b 80%,#7c5cbf 100%);
-  --grad-v: linear-gradient(180deg,#4a90e2 0%,#00c9a7 33%,#ffc340 66%,#ff6b6b 100%);
+  --grad:   linear-gradient(90deg,#0074c8 0%,#00acd9 20%,#94d40b 40%,#ffb61b 60%,#ff6600 80%,#dc143c 100%);
+  --grad-v: linear-gradient(180deg,#0074c8 0%,#00acd9 33%,#ffb61b 66%,#ff6600 100%);
 
   /* Fondos */
   --fondo:  #f5f3ee;

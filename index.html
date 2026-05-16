@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="RAPS · Registro de Actuaciones de Promoción de la Salud — Distrito Sanitario Granada-Metropolitano. Análisis y visualización de actividades de promoción de la salud.">
 <meta name="robots" content="noindex, nofollow">
-<title>RAPS · DGRAMET v5.0</title>
+<title>RAPS · DGRAMET v1.0</title>
 <!-- Dependencias locales — sin llamadas a CDN externas (ENS, privacidad) -->
 <script src="vendor/chart.umd.min.js"></script>
 <script src="vendor/papaparse.min.js"></script>
@@ -27,7 +27,7 @@
 <header role="banner">
   <div class="hdr">
     <div class="brand">
-      <h1>RAPS · DGRAMET <span style="font-size:.7em;font-weight:400">v5.0</span></h1>
+      <h1><span style="background:linear-gradient(90deg,#0074c8,#94d40b,#ffb61b,#dc143c);-webkit-background-clip:text;background-clip:text;color:transparent;">RAPS · DGRAMET</span> <span style="font-size:.7em;font-weight:500;color:#475569">v1.0</span></h1>
       <p>Registro de Actuaciones de Promoción de la Salud · Distrito Sanitario Granada-Metropolitano</p>
     </div>
     <div class="hdr-actions" role="toolbar" aria-label="Acciones principales">
@@ -44,7 +44,7 @@
 
 <nav role="navigation" aria-label="Paneles de análisis">
   <div class="nav-inner" role="tablist">
-    <div class="nav-tab active" role="tab" aria-selected="true"  tabindex="0"  data-tab="dashboard">📊 Dashboard</div>
+    <div class="nav-tab active" role="tab" aria-selected="true"  tabindex="0"  data-tab="dashboard">Panel general</div>
     <div class="nav-tab"        role="tab" aria-selected="false" tabindex="-1" data-tab="tabla">📋 Tabla</div>
     <div class="nav-tab"        role="tab" aria-selected="false" tabindex="-1" data-tab="demografico">👥 Demográfico</div>
     <div class="nav-tab"        role="tab" aria-selected="false" tabindex="-1" data-tab="territorial">🗺️ Territorial</div>
@@ -68,14 +68,40 @@
        role="button" tabindex="0"
        aria-label="Zona de arrastrar y soltar fichero CSV. Pulsa Enter para abrir el selector de fichero.">
     <div class="ico" aria-hidden="true">📂</div>
-    <p><strong>Arrastra el CSV aquí</strong> o haz clic para seleccionarlo</p>
+    <p><strong>Arrastra aquí el fichero CSV</strong> o selecciónalo manualmente</p>
     <p style="margin-top:6px;font-size:.75rem">Formato REDCap · separador coma · UTF-8 o latin1</p>
     <button class="btn btn-p" style="margin-top:14px"
             aria-label="Abrir selector de fichero CSV"
             onclick="document.getElementById('file-csv').click()">Seleccionar archivo</button>
   </div>
+
+  <div class="raps-registro-card" aria-label="Acceso a la ficha de registro REDCap">
+    <div class="raps-registro-texto">
+      <span class="raps-registro-kicker">Registro de actuaciones</span>
+      <h2>Ficha de registro</h2>
+      <p>Accede al cuestionario REDCap para registrar nuevas actuaciones de promoción de la salud.</p>
+
+      <a class="btn btn-p raps-registro-btn"
+         href="https://redcap-fibao.granadasalud.es/DSGM/surveys/?s=DTTHPHDKLTC38PEC"
+         target="_blank"
+         rel="noopener"
+         aria-label="Abrir ficha de registro REDCap">
+         📝 Ficha de registro
+      </a>
+    </div>
+
+    <a class="raps-qr-link"
+       href="https://redcap-fibao.granadasalud.es/DSGM/surveys/?s=DTTHPHDKLTC38PEC"
+       target="_blank"
+       rel="noopener"
+       aria-label="Abrir ficha de registro REDCap mediante QR">
+       <img src="qr_raps_redcap.png"
+            alt="Código QR de acceso a la ficha de registro REDCap">
+    </a>
+  </div>
+
   <div id="csv-demo-btn" style="margin-top:20px">
-    <button class="btn btn-s" id="btn-demo" aria-label="Cargar conjunto de datos de prueba (~7 500 registros sintéticos)">🎲 Cargar datos de prueba</button>
+    <button class="btn btn-s" id="btn-demo" aria-label="Cargar conjunto de datos de ejemplo (~7 500 registros sintéticos)">🎲 Cargar datos de ejemplo</button>
   </div>
 </div>
 
@@ -129,12 +155,12 @@
 </div>
 
 <!-- ── PANEL: DASHBOARD ───────────────────────────────────────────── -->
-<div class="panel active" id="p-dashboard" role="tabpanel" aria-label="Dashboard principal">
-  <div class="sec-header"><span class="sec-title">Dashboard principal</span></div>
+<div class="panel active" id="p-dashboard" role="tabpanel" aria-label="Panel general">
+  <div class="sec-header"><span class="sec-title">Panel general</span></div>
   <div class="g6 mb16" id="kpis" role="list" aria-label="Indicadores clave"></div>
   <div class="g3 mb16" id="charts-row1" aria-label="Gráficos de distribución"></div>
   <div class="g3 mb16" id="charts-row2" aria-label="Gráficos de evolución"></div>
-  <div class="g2 mb16" id="rankings-wrap" aria-label="Rankings de unidades"></div>
+  <div class="g2 mb16" id="rankings-wrap" aria-label="Clasificación de unidades"></div>
 </div>
 
 <!-- ── PANEL: TABLA ───────────────────────────────────────────────── -->
@@ -191,8 +217,8 @@
     <div class="chart-card"><h3>👥 Participantes por distrito</h3><div class="chart-wrap"><canvas id="ch-dist-part" aria-label="Gráfico de participantes por distrito" role="img"></canvas></div></div>
   </div>
   <div class="g2 mb16">
-    <div class="card"><div class="card-title">🏆 Top unidades — Actividades</div><div id="rank-unid-act" role="list"></div></div>
-    <div class="card"><div class="card-title">👥 Top unidades — Participantes</div><div id="rank-unid-part" role="list"></div></div>
+    <div class="card"><div class="card-title">🏆 Principales unidades — Actividades</div><div id="rank-unid-act" role="list"></div></div>
+    <div class="card"><div class="card-title">👥 Principales unidades — Participantes</div><div id="rank-unid-part" role="list"></div></div>
   </div>
   <div class="g2 mb16">
     <div class="chart-card"><h3>🌍 Distribución unidades Granada</h3><div class="chart-wrap" style="height:280px"><canvas id="ch-ugranada" aria-label="Gráfico de distribución de unidades del Distrito Granada" role="img"></canvas></div></div>
@@ -209,11 +235,11 @@
     <div class="chart-card"><h3>⚥ Sexo profesional</h3><div class="chart-wrap"><canvas id="ch-sexo-prof" aria-label="Gráfico de distribución por sexo del profesional" role="img"></canvas></div></div>
   </div>
   <div class="g2 mb16">
-    <div class="card"><div class="card-title">🏆 Top 15 — Actividades realizadas</div><div id="rank-prof-act" role="list"></div></div>
-    <div class="card"><div class="card-title">👥 Top 15 — Participantes alcanzados</div><div id="rank-prof-part" role="list"></div></div>
+    <div class="card"><div class="card-title">🏆 Principales profesionales — Actividades realizadas</div><div id="rank-prof-act" role="list"></div></div>
+    <div class="card"><div class="card-title">👥 Principales profesionales — Participantes alcanzados</div><div id="rank-prof-part" role="list"></div></div>
   </div>
   <div class="g2 mb16">
-    <div class="card"><div class="card-title">⏱️ Top 15 — Horas dedicadas</div><div id="rank-prof-horas" role="list"></div></div>
+    <div class="card"><div class="card-title">⏱️ Principales profesionales — Horas dedicadas</div><div id="rank-prof-horas" role="list"></div></div>
     <div class="card"><div class="card-title">📈 Eficiencia — Participantes por hora</div><div id="rank-prof-ef" role="list"></div></div>
   </div>
 </div>
@@ -230,8 +256,8 @@
     <div class="chart-card"><h3>🗓️ Distribución semanal</h3><div class="chart-wrap"><canvas id="ch-diasem" aria-label="Gráfico de distribución semanal" role="img"></canvas></div></div>
   </div>
   <div class="card mb16">
-    <div class="card-title">🗓️ Mapa de calor mensual — Actividades</div>
-    <div id="heatmap-wrap" style="overflow-x:auto;padding:8px 0" aria-label="Mapa de calor de actividades por mes" role="img"></div>
+    <div class="card-title">🗓️ Distribución mensual de actividades</div>
+    <div id="heatmap-wrap" style="overflow-x:auto;padding:8px 0" aria-label="Distribución mensual de actividades" role="img"></div>
   </div>
 </div>
 
@@ -278,8 +304,8 @@
     <div class="chart-card"><h3>📐 Horas por actividad (por tipo)</h3><div class="chart-wrap"><canvas id="ch-ef-horas" aria-label="Gráfico de horas por actividad" role="img"></canvas></div></div>
   </div>
   <div class="g2 mb16">
-    <div class="card"><div class="card-title">🏆 Unidades más eficientes (participantes/hora)</div><div id="rank-ef-unid" role="list"></div></div>
-    <div class="card"><div class="card-title">🔝 Programas más intensivos (horas totales)</div><div id="rank-ef-prog" role="list"></div></div>
+    <div class="card"><div class="card-title">🏆 Unidades con mayor rendimiento (participantes/hora)</div><div id="rank-ef-unid" role="list"></div></div>
+    <div class="card"><div class="card-title">🔝 Programas con mayor dedicación horaria (horas totales)</div><div id="rank-ef-prog" role="list"></div></div>
   </div>
 </div>
 
@@ -306,7 +332,7 @@
 <footer role="contentinfo">
   <div class="footer-inner">
     <div>
-      <h4>RAPS · DGRAMET v5.0</h4>
+      <h4><span style="background:linear-gradient(90deg,#0074c8,#94d40b,#ffb61b,#dc143c);-webkit-background-clip:text;background-clip:text;color:transparent;">RAPS · DGRAMET</span> <span style="font-weight:500;color:#475569">v1.0</span></h4>
       <p>Registro de Actuaciones de Promoción de la Salud</p>
       <p>Distrito Sanitario Granada-Metropolitano · mayo 2026</p>
     </div>
@@ -330,7 +356,7 @@
       <span class="ip-badge">RAPS</span>
       <div>
         <strong>Registro de Actuaciones de Promoción de la Salud</strong>
-        <span>DS Granada-Metropolitano · v5.0</span>
+        <span>DS Granada-Metropolitano · v1.0</span>
       </div>
     </div>
     <button id="btn-info-close" class="ip-close" aria-label="Cerrar panel de información">✕</button>
@@ -378,11 +404,11 @@
     <section class="ip-section">
       <h3 class="ip-sec-title">Paneles de análisis</h3>
       <div class="ip-panel-list">
-        <div class="ip-panel-item"><span class="ip-panel-ico">📊</span><div><strong>Dashboard</strong><span>KPIs globales, gráficos de distribución y rankings de unidades</span></div></div>
+        <div class="ip-panel-item"><span class="ip-panel-ico">📊</span><div><strong>Dashboard</strong><span>Indicadores generales, gráficos de distribución y clasificación de unidades</span></div></div>
         <div class="ip-panel-item"><span class="ip-panel-ico">📋</span><div><strong>Tabla</strong><span>Listado paginado y buscable de todas las actividades</span></div></div>
         <div class="ip-panel-item"><span class="ip-panel-ico">👥</span><div><strong>Demográfico</strong><span>Sexo, población diana, horario y lugar de realización</span></div></div>
         <div class="ip-panel-item"><span class="ip-panel-ico">🗺️</span><div><strong>Territorial</strong><span>Distribución por distrito, municipio y unidad asistencial</span></div></div>
-        <div class="ip-panel-item"><span class="ip-panel-ico">👤</span><div><strong>Profesional</strong><span>Categoría, especialidad, rankings de actividad y eficiencia</span></div></div>
+        <div class="ip-panel-item"><span class="ip-panel-ico">👤</span><div><strong>Profesional</strong><span>Categoría, especialidad, clasificación de actividad y eficiencia</span></div></div>
         <div class="ip-panel-item"><span class="ip-panel-ico">📈</span><div><strong>Temporal</strong><span>Evolución mensual, estacionalidad y mapa de calor anual</span></div></div>
         <div class="ip-panel-item"><span class="ip-panel-ico">🎯</span><div><strong>Programas</strong><span>Actividad por programa, temática y tipo de intervención</span></div></div>
         <div class="ip-panel-item"><span class="ip-panel-ico">⚖️</span><div><strong>Equidad</strong><span>Brecha entre zonas desfavorecidas y no desfavorecidas</span></div></div>
@@ -391,11 +417,11 @@
       </div>
     </section>
 
-    <!-- ── KPIs actuales ── -->
+    <!-- ── Indicadores actuales ── -->
     <section class="ip-section ip-section-kpi" id="ip-kpi-section">
       <h3 class="ip-sec-title">Datos actuales <span id="ip-nivel-label" class="ip-nivel"></span></h3>
       <div id="ip-kpis" class="ip-kpi-grid">
-        <div class="ip-kpi-empty">Carga un CSV o usa los datos de prueba para ver el resumen.</div>
+        <div class="ip-kpi-empty">Carga un CSV o usa los datos de ejemplo para ver el resumen.</div>
       </div>
     </section>
 

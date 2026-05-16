@@ -74,9 +74,120 @@ tbody tr:hover{background:var(--fondo2)}
 .badge-r{background:rgba(255,107,107,.1);color:#a04040;border-color:rgba(255,107,107,.25)}
 /* ── Pantalla bienvenida ─────────────────────────────────────────────────── */
 #bienvenida{text-align:center;padding:60px 20px}
-#bienvenida .grad-title{font-size:2rem;font-weight:750;color:var(--titulo);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+#bienvenida .grad-title{font-size:2rem;font-weight:750;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
 #bienvenida p{color:var(--sub);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
 .drop-zone{border:2px dashed var(--borde);border-radius:var(--r);padding:40px;max-width:480px;margin:0 auto;cursor:pointer;transition:all .2s}
 .drop-zone:hover{border-color:var(--azul);background:rgba(74,144,226,.03)}
 .drop-zone .ico{font-size:2.5rem;margin-bottom:10px}
 .drop-zone p{color:var(--sub);font-size:.9rem}
+
+/* ── Acceso REDCap / Ficha de registro ───────────────────────────── */
+
+.raps-registro-card{
+  margin:28px auto 0;
+  max-width:720px;
+  background:var(--white);
+  border:1px solid var(--borde);
+  border-radius:18px;
+  padding:22px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  box-shadow:var(--sombra);
+  position:relative;
+  overflow:hidden;
+}
+
+.raps-registro-card::before{
+  content:'';
+  position:absolute;
+  inset:0 0 auto 0;
+  height:4px;
+  background:var(--grad);
+}
+
+.raps-registro-texto{
+  text-align:left;
+  flex:1;
+}
+
+.raps-registro-kicker{
+  display:inline-block;
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--azul);
+  margin-bottom:8px;
+}
+
+.raps-registro-texto h2{
+  font-size:1.3rem;
+  margin-bottom:8px;
+  color:var(--titulo);
+}
+
+.raps-registro-texto p{
+  font-size:.84rem;
+  color:var(--sub);
+  line-height:1.5;
+  margin-bottom:14px;
+  max-width:420px;
+}
+
+.raps-registro-btn{
+  border-left-width:4px;
+}
+
+.raps-qr-link{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid var(--borde);
+  position:relative;
+}
+
+.raps-qr-link::before{
+  content:'';
+  position:absolute;
+  inset:-1px;
+  border-radius:18px;
+  padding:1px;
+  background:var(--grad);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+          mask-composite:exclude;
+}
+
+.raps-qr-link img{
+  width:118px;
+  height:118px;
+  display:block;
+  border-radius:10px;
+  background:#fff;
+}
+
+@media (max-width:700px){
+
+  .raps-registro-card{
+    flex-direction:column;
+    text-align:center;
+    padding:22px 18px;
+  }
+
+  .raps-registro-texto{
+    text-align:center;
+  }
+
+  .raps-registro-texto p{
+    max-width:none;
+  }
+
+}

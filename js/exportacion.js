@@ -52,10 +52,10 @@ function expPDF(){
     <div class="kpi"><div class="v">${fmt(profs)}</div><div class="l">Profesionales</div></div>
     <div class="kpi"><div class="v">${fmt(desf)}</div><div class="l">Act. zona desf.</div></div>
   </div>
-  <h2 style="font-size:14px;color:#0074c8;margin-bottom:8px">Top programas</h2>
+  <h2 style="font-size:14px;color:#0074c8;margin-bottom:8px">Principales programas</h2>
   <table><thead><tr><th>Programa</th><th>Actividades</th><th>Participantes</th></tr></thead>
   <tbody>${contarPor(d,C.f.programa,C.prog).slice(0,10).map(x=>{const pp=d.filter(r=>C.prog[r[C.f.programa]]===x.k).reduce((s,r)=>s+n(r[C.f.participantes]),0);return`<tr><td>${x.k}</td><td>${fmt(x.v)}</td><td>${fmt(pp)}</td></tr>`;}).join('')}</tbody></table>
-  <h2 style="font-size:14px;color:#0074c8;margin-bottom:8px">Top temáticas</h2>
+  <h2 style="font-size:14px;color:#0074c8;margin-bottom:8px">Principales temáticas</h2>
   <table><thead><tr><th>Temática</th><th>Actividades</th></tr></thead>
   <tbody>${contarPor(d,C.f.tematica,C.tema).slice(0,10).map(x=>`<tr><td>${x.k}</td><td>${fmt(x.v)}</td></tr>`).join('')}</tbody></table>
   </body></html>`;

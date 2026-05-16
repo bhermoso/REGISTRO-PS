@@ -75,8 +75,8 @@ function renderDashboard(){
   const ruPart=Object.entries(rankUnid).map(([k,v])=>({k,v:v.part})).sort((a,b)=>b.v-a.v).slice(0,10);
 
   document.getElementById('rankings-wrap').innerHTML=`
-    <div class="card"><div class="card-title">🏆 Top unidades — Actividades</div><div id="rk-u-act">${rankHTML(ruAct,colPal)}</div></div>
-    <div class="card"><div class="card-title">👥 Top unidades — Participantes</div><div id="rk-u-part">${rankHTML(ruPart,colPal)}</div></div>`;
+    <div class="card"><div class="card-title">🏆 Principales unidades — Actividades</div><div id="rk-u-act">${rankHTML(ruAct,colPal)}</div></div>
+    <div class="card"><div class="card-title">👥 Principales unidades — Participantes</div><div id="rk-u-part">${rankHTML(ruPart,colPal)}</div></div>`;
 }
 
 export { renderDashboard };

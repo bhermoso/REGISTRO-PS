@@ -60,7 +60,7 @@ raps/
 │   └── xlsx.full.min.js        # XLSX.js 0.18.5
 │
 ├── styles/
-│   ├── variables.css           # Variables CSS / paleta COMPAS
+│   ├── variables.css           # Variables CSS / paleta RAPS
 │   ├── base.css                # Layout y estructura base
 │   ├── componentes.css         # Botones, tarjetas, KPIs, tabla, ranking
 │   └── paneles.css             # Estilos específicos por panel

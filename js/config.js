@@ -25,6 +25,6 @@ export const C = {
   horario:{0:'Mañana',1:'Tarde',2:'Mañana y tarde'},
   lugar:{0:'Centro salud',1:'Hospital',2:'Asoc./ONG',3:'C. residencial',4:'C. acogida',5:'C. sociosan.',6:'C. educativo',7:'Universidad',8:'Ayto./Municipal',9:'Empresa',10:'C. menores',11:'Penitenciario',12:'Radio/TV',13:'RRSS',14:'Otros'},
   poblacion:{0:'Infancia',1:'Adolescencia',2:'Juventud',3:'Adulta',4:'Mayores',5:'General',6:'Mujeres',7:'Hombres',8:'Prof. sanitarios',9:'Prof. no sanitarios',10:'Enf. crónicas',11:'Salud mental',12:'Cuidadoras',13:'Migrantes',14:'Riesgo colectivo',15:'Vulnerabilidad'},
-  PAL:['#4a90e2','#00c9a7','#43b89c','#b8f04a','#ffc340','#ff6b6b','#7c5cbf'],
-  PAL_L:['rgba(74,144,226,.15)','rgba(0,201,167,.15)','rgba(67,184,156,.15)','rgba(184,240,74,.15)','rgba(255,195,64,.15)','rgba(255,107,107,.15)','rgba(124,92,191,.15)']
+  PAL:['#0074c8','#00acd9','#94d40b','#ffb61b','#ff6600','#dc143c'],
+  PAL_L:['rgba(0,116,200,.15)','rgba(0,172,217,.15)','rgba(148,212,11,.15)','rgba(255,182,27,.15)','rgba(255,102,0,.15)','rgba(220,20,60,.15)']
 };

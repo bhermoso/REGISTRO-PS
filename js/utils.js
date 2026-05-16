@@ -44,13 +44,13 @@ function fmtD(v){ return Number(v).toLocaleString('es-ES',{minimumFractionDigits
 function pct(a,b){ return b>0?((a/b)*100).toFixed(1)+'%':'—'; }
 
 /**
- * Devuelve el color de la paleta COMPAS para el índice dado (cíclico).
+ * Devuelve el color de la paleta RAPS para el índice dado (cíclico).
  * @param {number} i @returns {string} Color CSS
  */
 function colPal(i){ return C.PAL[i%C.PAL.length]; }
 
 /**
- * Devuelve el color claro de la paleta COMPAS para el índice dado (cíclico).
+ * Devuelve el color claro de la paleta RAPS para el índice dado (cíclico).
  * @param {number} i @returns {string} Color CSS con opacidad
  */
 function colPalL(i){ return C.PAL_L[i%C.PAL_L.length]; }
@@ -141,7 +141,7 @@ function sumarPor(datos,campo,lookup,campoVal){
 }
 
 /**
- * Renderiza un gráfico de barras horizontal (hbar) con la paleta COMPAS.
+ * Renderiza un gráfico de barras horizontal (hbar) con la paleta RAPS.
  * @param {string} id - ID del canvas
  * @param {Array<{k:string,v:number}>} data - Datos con etiqueta y valor
  */

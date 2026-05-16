@@ -46,7 +46,7 @@ function actualizarKpis(){
   if(nEl) nEl.textContent = NIVEL_LABEL[S.nivel] || '';
 
   if(!d || !d.length){
-    if(kEl) kEl.innerHTML = '<div class="ip-kpi-empty">Sin datos cargados. Carga un CSV o usa los datos de prueba.</div>';
+    if(kEl) kEl.innerHTML = '<div class="ip-kpi-empty">Sin datos cargados. Carga un CSV o usa los datos de ejemplo.</div>';
     return;
   }
 
