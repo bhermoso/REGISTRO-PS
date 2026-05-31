@@ -14,20 +14,20 @@
   --grad-v: linear-gradient(180deg,#0074c8 0%,#00acd9 33%,#ffb61b 66%,#ff6600 100%);
 
   /* Fondos */
-  --fondo:  #f5f3ee;
-  --fondo2: #faf9f5;
-  --fondo3: #ede9e0;
+  --fondo:  #f5f6f8;
+  --fondo2: #fafbfc;
+  --fondo3: #f1f5f9;
   --white:  #ffffff;
 
   /* Tipografía */
-  --titulo: #1a1a2e;
-  --texto:  #3d3d5c;
-  --sub:    #7b7b9a;
+  --titulo: #1e293b;
+  --texto:  #334155;
+  --sub:    #64748b;
 
   /* Estructura */
-  --borde:    #e5e2d9;
-  --sombra:   0 1px 3px rgba(26,26,46,.05);
-  --sombra-h: 0 8px 20px rgba(26,26,46,.08);
+  --borde:    #e2e8f0;
+  --sombra:   0 1px 3px rgba(0,0,0,.06);
+  --sombra-h: 0 8px 20px rgba(0,0,0,.08);
   --r: 10px;
 
   /* Alias semánticos (compatibilidad interna) */

@@ -68,7 +68,7 @@ footer::before{content:'';display:block;height:5px;background:var(--grad)}
 /* Cabecera del panel */
 .ip-header{
   padding:18px 20px 14px;
-  background:var(--titulo);
+  background:var(--azul);
   display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
   flex-shrink:0
 }
